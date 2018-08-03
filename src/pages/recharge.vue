@@ -2,9 +2,9 @@
     <div class="recharge_container">
         <div class="recharge_header">
             <ul class="header_wrap">
-                <router-link to="/category" tag="li" class="nav_item">漫画</router-link>
+                <router-link to="/cartoon" tag="li" class="nav_item">漫画</router-link>
                 <router-link to="/home" tag="li" class="nav_item">首页</router-link>
-                <router-link to="" tag="li" class="nav_item">充值记录</router-link>
+                <router-link to="/mypage/rechargeRecord" tag="li" class="nav_item">充值记录(待开发)</router-link>
             </ul>
         </div>
         <div class="recharge_content">
@@ -18,7 +18,7 @@
             </ul>
             <!-- 年费vip -->
             <div class="year_card_wrap">
-                <div class="year_card">
+                <div class="year_card" @click="startPayEvent(365)">
                     <div class="hot_icon"></div>
                     <div class="girl_icon"></div>
                     <div class="year_text">
@@ -86,6 +86,7 @@ export default {
         text-align: center;
         font-size: .28rem;
         color: #fff;
+        -webkit-tap-highlight-color: transparent;
     }
     .header_wrap .nav_item::before{
         content: "";
@@ -107,7 +108,7 @@ export default {
     }
     .recharge_t{
         line-height: .68rem;
-        background: url('/static/images/icon28.png') left .3rem center no-repeat;
+        background: url('../../static/images/icon28.png') left .3rem center no-repeat;
         background-size: .35rem;
         color: #ff893a;
         font-size: .28rem;
@@ -142,6 +143,7 @@ export default {
         flex-direction: column;
         justify-content: center;
         padding-right:0.2rem;
+        -webkit-tap-highlight-color: transparent;
     }
     .recharge_module_item.on{
         border-color: #ffacb2;
@@ -158,7 +160,7 @@ export default {
         content: "";
         width:0.42rem; 
         height:0.31rem;
-        background: url(/static/images/icon15.png)  no-repeat;
+        background: url(../../static/images/icon15.png)  no-repeat;
         background-size:100% 100%;
         display: inline-block;
         vertical-align: middle;
@@ -206,15 +208,16 @@ export default {
         box-shadow: 0 0 0.3rem transparent;
         position: relative;
         overflow: visible;
-        background: url(/static/images/xin_icon.png) no-repeat;
+        background: url(../../static/images/xin_icon.png) no-repeat;
         background-size: 6.3rem auto;
         background-position: .1rem;
         border-radius: 1rem;
         display: flex;
         align-items: center;
+        -webkit-tap-highlight-color: transparent;
     }
     .hot_icon{
-        background: url(/static/images/cz_hot_icon.png) 0 no-repeat;
+        background: url(../../static/images/cz_hot_icon.png) 0 no-repeat;
         background-size: .45rem;
         position: absolute;
         top: -.6rem;
@@ -223,7 +226,7 @@ export default {
         height: 100%;
     }
     .girl_icon{
-        background: url(/static/images/icon-girl.png) 50% no-repeat;
+        background: url(../../static/images/icon-girl.png) 50% no-repeat;
         background-size: 1.23rem 1.68rem;
         position: absolute;
         top: -.2rem;

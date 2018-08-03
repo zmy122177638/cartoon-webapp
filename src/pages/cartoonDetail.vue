@@ -2,24 +2,24 @@
   <div class="cartoonDetail_container">
     <div class="cartoonDetail_wrap">
       <div class="cartoonDetail_header">
-        <img :src="CartoonData.cover" class="cartoonDetail_banner" alt="">
+        <img :src="CartoonData.img_url" class="cartoonDetail_banner" alt="">
         <div class="img_bg"></div>
         <div class="cartoonDetail_h_t"><span class="_goback" @click="goback()"></span><span class="_gohome" @click="gohome()"></span></div>
         <div class="cartoonDetail_h_b">
-          <div class="cartoonDetail_title">{{CartoonData.bname}}</div>
+          <div class="cartoonDetail_title">{{CartoonData.name}}</div>
           <div class="cartoonDetail_msg">
             <div class="msg_left">
-              <span v-for="btype of CartoonData.btype" :key="btype">{{btype}}</span>
+              <span v-for="btype of CartoonData.label" :key="btype">{{btype}}</span>
             </div>
-            <div class="msg_right">{{CartoonData.loadstate?'连载中':'完结'}}/更新至{{CartoonData.chapterData.length}}话</div>
+            <div class="msg_right">{{CartoonData.serial_end?'连载中':'完结'}}/更新至{{CartoonData.set_number}}话</div>
           </div>
         </div>
       </div>
       <div class="cartoonDetail_footer">
         <div class="footer_wrap">
-          <div :class="['collection',collection_B?'onto':'']"  @click="collectionEvent()"><img :src="collection_B?collection_img1:collection_img0" class="footer_icon" alt="">{{collection_B?'已收藏':'收藏'}}</div>
-          <div :class="['fabulous',fabulous_B?'onto':'']" @click="fabulousEvent()"><img :src="fabulous_B?fabulous_img1:fabulous_img0" class="footer_icon" alt="">{{fabulous_B?'已赞':'点赞'}}</div>
-          <div class="startRead" @click="startReadCartoon()"><img src="../../static/images/yd_icon.png" class="footer_icon" alt=""> 开始阅读</div>
+          <div :class="['collection',CartoonData.Cnumber?'onto':'']"  @click="collectionEvent()"><img :src="CartoonData.Cnumber?collection_img1:collection_img0" class="footer_icon" alt="">{{CartoonData.Cnumber?'已收藏':'收藏'}}</div>
+          <div :class="['fabulous',CartoonData.Pnumber?'onto':'']" @click="fabulousEvent()"><img :src="CartoonData.Pnumber?fabulous_img1:fabulous_img0" class="footer_icon" alt="">{{CartoonData.Pnumber?'已赞':'点赞'}}</div>
+          <div class="startRead" @click="startReadCartoon()"><img src="../../static/images/yd_icon.png" class="footer_icon" alt=""> {{CartoonData.sort_number == 0?'开始阅读':'继续阅读'}}</div>
         </div>
       </div>
       <div class="cartoonDetail_content">
@@ -29,10 +29,10 @@
         </div>
         <!-- 详情 -->
         <div class="content_wra0" v-show="select==0">
-          <p class="cartoon_jj"><span class="c_t_h">简介：</span>{{CartoonData.bnameContent}}</p>
+          <p class="cartoon_jj"><span class="c_t_h">简介：</span>{{CartoonData.brief}}</p>
           <div class="cartoon_tj_wrap">
-            <div class="tj_w"><img src="../../static/images/browse.png" class="read_icon" alt="">总浏览{{CartoonData.readNum}}</div>
-            <div class="tj_w"><img src="../../static/images/zan4.png" class="fabulous_icon" alt="">{{CartoonData.fabulousTotalNum}}人点赞</div>
+            <div class="tj_w"><img src="../../static/images/browse.png" class="read_icon" alt="">总浏览{{CartoonData.browse > 9999 ? (Math.floor(CartoonData.browse/1000)/10) + '万' : CartoonData.browse}}</div>
+            <div class="tj_w"><img src="../../static/images/zan4.png" class="fabulous_icon" alt="">{{CartoonData.praise}}人点赞</div>
           </div>
           <p class="cartoon_author"><span class="c_t_h">主笔：</span>{{CartoonData.author}}</p>
         </div>
@@ -40,12 +40,12 @@
         <div class="content_wrap1" v-show="select==1">
           <div class="content_all_cartoon"><p>全部章节</p><p @click="chapterSortEvent()">排序</p></div>
           <ul class="chapter_list">
-            <li class="chapter_item" v-for="item in CartoonData.chapterData" :key="item.cid" @click="navigateToChapterDetail(item)">
-              <figure><img :src="item.img" class="chapter_img" alt=""></figure>
+            <li class="chapter_item" v-for="item in chapterData" :key="item.chapterid" @click="navigateToChapterDetail(item)">
+              <figure><img :src="item.imgurl" class="chapter_img" alt=""></figure>
               <div class="chapter_msg">
-                <p class="chapter_t">第{{item.chapterNum}}话 {{item.title}}</p>
-                <p class="chapter_m" v-show="item.charge"><span class="chapter_m_icon"></span></p>
-                <p class="chapter_ft"><span>{{item.time}}</span><span :class="item.fabulousB?'on':''" @click.stop="chapterFabulouEvent(item)">{{item.fabulousNum}}</span></p>
+                <p class="chapter_t">第{{item.sort_number}}话 {{item.name}}</p>
+                <p class="chapter_m" v-show="item.free_pay"><span class="chapter_m_icon"></span></p>
+                <p class="chapter_ft"><span>{{item.createtime}}</span><span :class="item.Pnumber?'on':''" @click.stop="chapterFabulouEvent(item)">{{item.praise}}</span></p>
               </div>
             </li>
           </ul>
@@ -58,14 +58,14 @@
        <div class="paypromt_bg" @click.stop="switchpaypromtEvent()"></div>
        <div class="paypromt_wrap">
          <div class="paypromt_t">订阅章节 <span class="close" @click.stop="switchpaypromtEvent()"></span></div>
-         <div class="payitems">购买章节共计：1话<span> / 59币</span></div>
+         <div class="payitems">购买章节共计：1话<span> / {{coinnum}}币</span></div>
          <div class="assets">
            <p>余额：</p>
-           <p><span class="ec">0</span>阅读币</p>
-           <p><span class="ec">0</span>赠币</p>
+           <p><span class="ec">{{ydb}}</span>阅读币</p>
+           <p><span class="ec">{{zb}}</span>赠币</p>
          </div>
          <p :class="['balance_s',balance_B?'on':'']" @click.stop="selectPayEvent()">余额充足时点击下一话自动扣费，不再提示</p>
-         <div class="paypromt_btn">去充值</div>
+         <div class="paypromt_btn" @click="coinnum2=='去充值'?navigateToPaypage():buyChapterEvent()">{{coinnum2}}</div>
          <img src="../../static/images/zf_ren_icon.png" class="wrap_bg" alt="">
        </div>
      </div>
@@ -79,42 +79,85 @@ export default {
   data () {
     return {
       select:0, //默认详情
+      pageNum:1,
+      sort:0,   //排序
       throttle_B:false,
       loading_B:false,
-      fabulous_B:false,
       paypromt_B:false,
       balance_B:false,
-      fabulous_img0:'../../static/images/zan6.png',
-      fabulous_img1:'../../static/images/zan5.png',
-      collection_B:false,
-      collection_img0:'../../static/images/icon56.png',
-      collection_img1:'../../static/images/collection_icon.png',
-      CartoonData:{
-        bid:0,bname:'1204公寓',btype:['情感','恋爱'],cover:'http://img.super-dreamers.com/xqmall/images/40d96fb5-d7e0-4cd0-8692-f3cdfd1263cf.jpg@75Q',
-        loadstate:0,readNum:1324,fabulousTotalNum:65464,author:'Anles',bnameContent:'一个突如其来的男人，住进了奇怪的城堡，意外引发两姐妹内心情欲的流动...',
-        chapterData:[
-          {title:'回国',chapterNum:1,fabulousB:0,time:'2018-06-07',fabulousNum:68,img:'http://img.super-dreamers.com/xqmall/images/20522c50-10cf-4e20-9f34-5694365e974d.png',charge:0,cid:0},
-          {title:'外出',chapterNum:2,fabulousB:0,time:'2018-06-07',fabulousNum:68,img:'http://img.super-dreamers.com/xqmall/images/20522c50-10cf-4e20-9f34-5694365e974d.png',charge:0,cid:1},
-          {title:'放开',chapterNum:3,fabulousB:0,time:'2018-06-07',fabulousNum:68,img:'http://img.super-dreamers.com/xqmall/images/20522c50-10cf-4e20-9f34-5694365e974d.png',charge:0,cid:2},
-          {title:'放开',chapterNum:4,fabulousB:0,time:'2018-06-07',fabulousNum:68,img:'http://img.super-dreamers.com/xqmall/images/20522c50-10cf-4e20-9f34-5694365e974d.png',charge:1,cid:3},
-          {title:'放开',chapterNum:5,fabulousB:0,time:'2018-06-07',fabulousNum:68,img:'http://img.super-dreamers.com/xqmall/images/20522c50-10cf-4e20-9f34-5694365e974d.png',charge:1,cid:4},
-        ]
-      }
+      coinnum:0, // 扣币
+      Mchapterid:'',  //购买章节Id
+      MchapterNum:0,
+      coinnum2:'扣0赠币', 
+      ydb:0, 
+      zb:0,
+      fabulous_img0:'static/images/zan6.png',
+      fabulous_img1:'static/images/zan5.png',
+      collection_img0:'static/images/icon56.png',
+      collection_img1:'static/images/collection_icon.png',
+      CartoonData:{},
+      chapterData:[]
     }
   },
   mounted(){
+    this.select = this.$route.query.Catalog || this.select;
     window.addEventListener('scroll',this.Pulluploading,false);
-    // 接收返回目录
-    if(this.$route.query.Catalog != undefined){
-      this.select = this.$route.query.Catalog;
-    }
-    // 接收漫画id
-    console.log('传入漫画id'+this.$route.query.cid)
+    this.cartoonDataEvent();
+    this.charpteDatainitEvent();
   },
   methods:{
+    // 漫画数据
+    cartoonDataEvent(){
+      var _self = this;
+      _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-index',_self.$qs.stringify({cid:_self.$route.query.cid,uid:_self.$store.state.uid}))
+      .then(function(response){
+        _self.CartoonData =response.data;
+        console.log(response)
+      })
+    },
+    // 章节初始数据
+    charpteDatainitEvent(){
+      var _self = this;
+      if(_self.select){
+        _self.$store.state.loadShow =true;
+         _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter',_self.$qs.stringify({page:1,cid:_self.$route.query.cid,uid:_self.$store.state.uid,sort:_self.sort}))
+        .then(function(response){
+          console.log(response)
+          _self.chapterData = response.data;
+          _self.$store.state.loadShow =false;
+        })
+      }
+    },
+    // 章节上拉加载数据
+    charpteDataEvent(){
+       var _self = this;
+      _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter',_self.$qs.stringify({page:_self.pageNum,cid:_self.$route.query.cid,uid:_self.$store.state.uid,sort:_self.sort}))
+      .then(function(response){
+        if(response.data != ""){
+          _self.chapterData = _self.chapterData.concat(response.data);
+          _self.$store.state.loadShow =false;
+        }else{
+          window.removeEventListener('scroll',_self.Pulluploading,false);
+          _self.loading_B = true;
+          _self.$store.state.loadShow =false;
+        }
+        console.log(response)
+      })
+    },
     // tabbar切换
     selectTabbarEvent(select){
-      this.select = select;
+      var _self = this;
+      _self.select = select;
+      _self.charpteDatainitEvent();
+    },
+     // 排序
+    chapterSortEvent(){
+      var _self = this;
+      _self.sort == 1?_self.sort=0:_self.sort=1;
+      _self.pageNum = 1;
+      _self.loading_B = false;
+      window.addEventListener('scroll',this.Pulluploading,false);
+      _self.charpteDatainitEvent()
     },
     // 返回上个路由
     goback(){this.$router.back(-1)},
@@ -126,72 +169,194 @@ export default {
       var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;
       var scrollHeight = document.querySelector('.cartoonDetail_container').clientHeight;
       var screenHeight = window.screen.height||window.innerHeight;
-      if(scrollHeight - screenHeight < scrollTop + 20 && _self.select==1){
-          if(!_self.throttle_B){
-              console.log('调用数据')
-              _self.$store.state.loadShow =true;
-              setTimeout(function(){
-                  _self.throttle_B = false;
-                  _self.$store.state.loadShow =false;
-              },1000)
-              _self.throttle_B = true;
-          }else{
-              return;
-          }
+      if(scrollHeight - screenHeight < scrollTop + 50 && _self.select==1){
+        if(!_self.throttle_B){
+            _self.pageNum++;
+            _self.charpteDataEvent();
+            _self.$store.state.loadShow =true;
+            setTimeout(function(){
+                _self.throttle_B = false;
+            },800)
+            _self.throttle_B = true;
+        }else{
+            return;
+        }
       }
     },
     // 漫画点赞
     fabulousEvent(){
       var _self = this;
-      _self.fabulous_B = !_self.fabulous_B;
-      _self.fabulous_B?_self.CartoonData.fabulousTotalNum++:_self.CartoonData.fabulousTotalNum--;
+      if(_self.$store.state.isLogin){
+        _self.CartoonData.Pnumber = !_self.CartoonData.Pnumber;
+        _self.CartoonData.Pnumber?_self.CartoonData.praise++:_self.CartoonData.praise--;
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-praise',_self.$qs.stringify({uid:_self.$store.state.uid,cid:_self.$route.query.cid,judge:Number(_self.CartoonData.Pnumber)}))
+        .then(function(response){
+          // if(response.data){
+          //   layer.open({
+          //     content:'点赞成功'
+          //     ,skin:'msg'
+          //     ,time:2
+          //   })
+          // }else{
+          //   layer.open({
+          //     content:'取消成功'
+          //     ,skin:'msg'
+          //     ,time:2
+          //   })
+          // }
+        })
+      }else{
+        _self.$router.push('/mypage/login')
+      }
+      
     },
     //章节点赞
     chapterFabulouEvent(item){
       var _self = this;
-      item.fabulousB=!item.fabulousB;
-      item.fabulousB?item.fabulousNum++:item.fabulousNum--;
+      if(_self.$store.state.isLogin){
+        item.Pnumber=!item.Pnumber;
+        item.Pnumber?item.praise++:item.praise--;
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter_praise',_self.$qs.stringify({chapterid:item.chapterid,uid:_self.$store.state.uid,judge:Number(item.Pnumber)}))
+        .then(function(response){
+          // if(response.data){
+          //   layer.open({
+          //     content:'点赞成功'
+          //     ,skin:'msg'
+          //     ,time:2
+          //   })
+          // }else{
+          //   layer.open({
+          //     content:'取消成功'
+          //     ,skin:'msg'
+          //     ,time:2
+          //   })
+          // }
+        })
+      }else{
+        _self.$router.push('/mypage/login')
+      }
     },
     // 收藏
     collectionEvent(){
       var _self = this;
-      _self.collection_B = !_self.collection_B;
+      if(_self.$store.state.isLogin){
+        _self.CartoonData.Cnumber = !_self.CartoonData.Cnumber;
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-collection',_self.$qs.stringify({cid:_self.$route.query.cid,uid:_self.$store.state.uid,judge:Number(_self.CartoonData.Cnumber)}))
+        .then(function(response){
+          // if(response.data){
+          //   layer.open({
+          //     content:'收藏成功'
+          //     ,skin:'msg'
+          //     ,time:2
+          //   })
+          // }else{
+          //   layer.open({
+          //     content:'取消收藏'
+          //     ,skin:'msg'
+          //     ,time:2
+          //   })
+          // }
+        })
+      }else{
+        _self.$router.push('/mypage/login')
+      }
+      
     },
     // 自动扣币
     selectPayEvent(){
-      this.balance_B=!this.balance_B;
+      var _self = this;
+      _self.balance_B = !_self.balance_B;
+      _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-payAuto',_self.$qs.stringify({uid:_self.$store.state.uid,cid:_self.$route.query.cid,chapterid:_self.Mchapterid,coin:_self.coinnum,judge:Number(_self.balance_B)}))
+      .then(function(response){
+        console.log(response)
+      })
     },
+    
+    // 去充值
+    navigateToPaypage(){this.$router.push('/mypage/recharge')},
+
+    // 购买章节
+    buyChapterEvent(){
+      var _self = this;
+      console.log(_self.coinnum)
+      _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-buyChapter',_self.$qs.stringify({uid:_self.$store.state.uid,cid:_self.$route.query.cid,chapterid:_self.Mchapterid,coin:_self.coinnum}))
+      .then(function(response){
+        console.log(response)
+        _self.navigateTopayChapter();
+      })
+    },
+
     // 关闭付费窗口
-    switchpaypromtEvent(){
-      this.paypromt_B=!this.paypromt_B;
-    },
-    // 排序
-    chapterSortEvent(){
-      this.CartoonData.chapterData.reverse();
-    },
+    switchpaypromtEvent(){this.paypromt_B=!this.paypromt_B;},
+
     // 开始阅读
     startReadCartoon(){
-      this.paypromt_B = !this.paypromt_B;
-      // this.$router.push({path:'/chapter/chapterDetail',query: {chapterid:0}});
+      if(this.CartoonData.sort_number == 0){
+        this.$router.push({path:'/chapter/chapterDetail',query: {sortNumber:1,cid:this.$route.query.cid,chaptertotalNum:this.CartoonData.set_number}});
+      }else{
+        this.$router.push({path:'/chapter/chapterDetail',query: {sortNumber:this.CartoonData.sort_number,cid:this.$route.query.cid,chaptertotalNum:this.CartoonData.set_number}});
+      }
+      
     },
+
+    // 阅读
+    navigateTopayChapter(){
+      console.log(this.MchapterNum)
+      this.$router.push({path:'/chapter/chapterDetail',query: {sortNumber:this.MchapterNum,cid:this.$route.query.cid,chaptertotalNum:this.CartoonData.set_number}});
+    },
+
     // 选择章节阅读
     navigateToChapterDetail(item){
       console.log(item)
       var _self = this;
-      if(item.charge === 1){
-        _self.paypromt_B = !_self.paypromt_B;
+      _self.MchapterNum = item.sort_number;
+      _self.Mchapterid = item.chapterid;
+      _self.coinnum = Number(item.coinnum);
+      // 是否付费
+      if(item.free_pay){
+        // 是否登录
+        if(_self.$store.state.isLogin){
+          _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-selectBalance',_self.$qs.stringify({uid:_self.$store.state.uid,cid:_self.$route.query.cid}))
+          .then(function(response){
+            console.log(response)
+            // 是否年费
+            if(response.data.power == 2){
+              console.log('年费会员绿色通道')
+              _self.navigateTopayChapter();
+            }else{
+              // 计算显示扣币
+              console.log('需扣币'+_self.coinnum,'阅读币'+_self.ydb,'赠币'+_self.zb)
+              let adequateMoney; //元宝够不够
+              _self.ydb = Number(response.data.coinyd);
+              _self.zb = Number(response.data.coinz);
+              _self.balance_B = response.data.autopay;
+              if(_self.zb > _self.coinnum){
+                _self.coinnum2 = '扣'+_self.coinnum + '赠币';
+              }else if(_self.zb <_self.coinnum && _self.ydb > _self.coinnum){
+                _self.coinnum2 = '扣'+_self.coinnum + '阅读币';
+              }else if(_self.zb < _self.coinnum && _self.ydb < _self.coinnum){
+                adequateMoney = true;
+                _self.coinnum2 = '去充值';
+              }
+
+              // 是否自动订阅
+              if(response.data.autopay){
+                if(adequateMoney){
+                  _self.paypromt_B = !_self.paypromt_B;
+                }else{
+                  _self.buyChapterEvent();
+                }
+              }else{
+                _self.paypromt_B = !_self.paypromt_B;
+              }
+            }
+          })
+        }else{
+          _self.$router.push('/mypage/login')
+        }
       }else{
-        _self.$router.push({path:'/chapter/chapterDetail',query: {chapterid:item.cid}});
+        _self.navigateTopayChapter();
       }
-      // _self.CartoonData.chapterData.forEach(function(item){
-      //   if(item.cid == cid){
-      //     if(item.charge === 1){
-      //       _self.paypromt_B = !_self.paypromt_B;
-      //     }else{
-      //       this.$router.push({path:'/chapter/chapterDetail',query: {chapterid:cid}});
-      //     }
-      //   }
-      // })
     },
   },
   destroyed(){
@@ -346,6 +511,7 @@ export default {
     display: inline-block;
     background:url('../../static/images/icon50.png') no-repeat;
     background-size:100% 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   .cartoonDetail_h_t ._gohome{
     margin-left:0.1rem;
@@ -354,6 +520,7 @@ export default {
     display: inline-block;
     background:url('../../static/images/iconhome.png') no-repeat;
     background-size:100% 100%;
+    -webkit-tap-highlight-color: transparent;
   }
   .cartoonDetail_h_b{
     position: relative;
@@ -410,6 +577,7 @@ export default {
     text-align: center;
     position: relative;
     float: left;
+    -webkit-tap-highlight-color: transparent;
   }
   .collection::after{
     content: "";
@@ -442,6 +610,7 @@ export default {
     line-height: 0.8rem;
     text-align: center;
     float: left;
+    -webkit-tap-highlight-color: transparent;
   }
   .fabulous .footer_icon{
     width:0.32rem;
@@ -462,6 +631,7 @@ export default {
     box-sizing: border-box;
     text-align: center;
     float:right;
+    -webkit-tap-highlight-color: transparent;
   }
   .startRead .footer_icon{
     width:0.45rem;
@@ -542,6 +712,7 @@ export default {
   }
   .content_all_cartoon p:nth-child(2){
     color:#989898;
+    -webkit-tap-highlight-color: transparent;
   }
   .content_all_cartoon p:nth-child(2)::before{
     content: '';
@@ -558,6 +729,7 @@ export default {
     display: flex;
     align-items: center;
     padding:0.2rem 0.24rem 0;
+    -webkit-tap-highlight-color: transparent;
   }
   .chapter_item .chapter_img{
     width: 2.32rem;
@@ -571,11 +743,15 @@ export default {
     flex-direction:column;
     justify-content: space-between;
     height:1.46rem;
+    overflow: hidden;
   }
   .chapter_msg .chapter_t{
     line-height: .4rem;
     color: #333;
     font-size: .3rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
   .chapter_m .chapter_m_icon{
     width: .37rem;
@@ -591,11 +767,10 @@ export default {
     color: #909090;
   }
   .chapter_msg .chapter_ft span{padding-right: .5rem;}
-  .chapter_msg .chapter_ft span:nth-last-child(1){padding-right:0;}
+  .chapter_msg .chapter_ft span:nth-last-child(1){padding-right:0;-webkit-tap-highlight-color: transparent;}
   .chapter_msg .chapter_ft span:nth-child(2)::before{
     content:'';
     display: inline-block;
-    vertical-align: middle;
     width:0.22rem;
     height:0.22rem;
     background:url('../../static/images/zan2.png') no-repeat;
@@ -603,7 +778,7 @@ export default {
     margin-right:0.1rem;
   }
   .chapter_msg .chapter_ft span:nth-child(2).on::before{
-     background:url('../../static/images/zan4.png') no-repeat;
+    background:url('../../static/images/zan4.png') no-repeat;
     background-size:100% 100%;
   }
   /* 加载 */

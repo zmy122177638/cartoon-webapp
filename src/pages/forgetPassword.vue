@@ -2,7 +2,7 @@
     <div :class="['login_container','bg'+bgNum]">
         <div class="_goback" @click="goback()"></div>
         <div class="forgetPassword_wrap">
-            <img src="/static/images/logo.png" class="logo" alt="">
+            <img src="../../static/images/logo.png" class="logo" alt="">
             <div class="form_wrap">
                 <div class="form_item">
                     <input type="text" v-model.trim="phone" placeholder="输入手机号" >
@@ -30,6 +30,7 @@ export default {
             bgNum:1,
             phone:'',
             reg:'',
+            regNum:'',
             password:'',
             num:60,
             regShow:false,
@@ -45,7 +46,8 @@ export default {
             this.$router.back(-1);
         },
         getRegEvent(){
-            if(this.phone == ""){
+            var _self = this;
+            if(_self.phone == ""){
                 layer.open({
                     content: '请输入手机号'
                     ,skin: 'msg'
@@ -53,7 +55,7 @@ export default {
                 });
                 return;
             }
-            if(!/^[1][3,4,5,6,7,8][0-9]{9}$/.test(this.phone)){
+            if(!/^[1][3,4,5,6,7,8][0-9]{9}$/.test(_self.phone)){
                 layer.open({
                     content: '手机号不正确'
                     ,skin: 'msg'
@@ -61,12 +63,30 @@ export default {
                 });
                 return;
             }
-            this.regShow = true;  // flag && event 会重复触发。
-            this.timeComputed(this)
+            _self.regShow = true;  // flag && event 会重复触发。
+            _self.timeComputed(_self)
+            _self.regNum = _self.getReg();
+            _self.$axios.post('https://www.yixueqm.com/cartoon/codeYZ/fileTest.php',_self.$qs.stringify({phone:_self.phone,code:_self.regNum,type:1}))
+            .then(function(response){
+                if(response.data){
+                    layer.open({
+                        content: '发送成功'
+                        ,skin: 'msg'
+                        ,time: 2 //2秒后自动关闭
+                    });
+                }else{
+                    layer.open({
+                        content: '发送失败'
+                        ,skin: 'msg'
+                        ,time: 2 //2秒后自动关闭
+                    });
+                }
+            })
         },
         // 重置密码
         resetEvent(){
-            if(this.phone == ""){
+            var _self = this;
+            if(_self.phone == ""){
                 layer.open({
                     content: '手机号不能为空'
                     ,skin: 'msg'
@@ -74,7 +94,7 @@ export default {
                 });
                 return;
             }
-            if(this.reg == ""){
+            if(_self.reg == ""){
                 layer.open({
                     content: '验证码不能为空'
                     ,skin: 'msg'
@@ -82,16 +102,48 @@ export default {
                 });
                 return;
             }
-            if(this.password == ""){
+            if(_self.password == ""){
                 layer.open({
                     content: '请输入你的新密码'
                     ,skin: 'msg'
                     ,time: 2 //2秒后自动关闭
                 });
                 return;
-            }else if(this.password.length < 6){
+            }else if(_self.password.length < 6){
                 layer.open({
                     content: '密码不能少于6位数'
+                    ,skin: 'msg'
+                    ,time: 2 //2秒后自动关闭
+                });
+                return;
+            }
+            if(_self.regNum == _self.reg){
+                _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-updatePassword',_self.$qs.stringify({user:_self.phone,password:_self.password}))
+                .then(function(result){
+                    if(result.data){
+                        _self.phone = '';
+                        _self.password = '';
+                        layer.open({
+                            content: '密码修改成功'
+                            ,skin: 'msg'
+                            ,time: 2 //2秒后自动关闭
+                            ,success:function(){
+                                _self.$router.push('/mypage/login')
+                            }   
+                        });
+                    }else{
+                        _self.phone = '';
+                        _self.password = '';
+                        layer.open({
+                            content: '密码修改失败'
+                            ,skin: 'msg'
+                            ,time: 2 //2秒后自动关闭
+                        });
+                    }
+                })
+            }else{
+                layer.open({
+                    content: '验证码错误'
                     ,skin: 'msg'
                     ,time: 2 //2秒后自动关闭
                 });
@@ -111,6 +163,13 @@ export default {
                 _self.regShow = false;
                 return;
             }
+        },
+        getReg(){
+            let regArr = [];
+            for(let i=0;i<6;i++){
+                regArr.push(Math.floor(Math.random()*9))
+            }
+            return regArr.join('')
         }
     },
 
@@ -118,37 +177,37 @@ export default {
 </script>
 <style scoped>
     .bg1{
-        background-image: url('/static/images/bg1.jpg');
+        background-image: url('../../static/images/bg1.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg2{
-        background-image: url('/static/images/bg2.jpg');
+        background-image: url('../../static/images/bg2.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg3{
-        background-image: url('/static/images/bg3.jpg');
+        background-image: url('../../static/images/bg3.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg4{
-        background-image: url('/static/images/bg4.jpg');
+        background-image: url('../../static/images/bg4.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg5{
-        background-image: url('/static/images/bg5.jpg');
+        background-image: url('../../static/images/bg5.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg6{
-        background-image: url('/static/images/bg6.jpg');
+        background-image: url('../../static/images/bg6.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg7{
-        background-image: url('/static/images/bg7.jpg');
+        background-image: url('../../static/images/bg7.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
@@ -170,7 +229,7 @@ export default {
     ._goback{
         width: 0.24rem;
         height: 0.42rem;
-        background: url('/static/images/back_icon.png') 50% no-repeat;
+        background: url('../../static/images/back_icon.png') 50% no-repeat;
         background-size: 0.24rem;
         position: absolute;
         left: 0.24rem;
@@ -204,17 +263,17 @@ export default {
         position: relative;
     }
     .form_wrap .form_item:nth-child(1){
-        background-image: url('/static/images/login_phone_icon.png');
+        background-image: url('../../static/images/login_phone_icon.png');
         background-position: left .5rem center;
         background-size: .3rem;
     }
     .form_wrap .form_item:nth-child(2){
-        background-image: url('/static/images/login_yzm_icon.png');
+        background-image: url('../../static/images/login_yzm_icon.png');
         background-position: left .5rem center;
         background-size: .36rem;
     }
     .form_wrap .form_item:nth-child(3){
-        background-image: url('/static/images/login_password_icon.png');
+        background-image: url('../../static/images/login_password_icon.png');
         background-position: left .5rem center;
         background-size: .28rem;
     }
@@ -260,7 +319,7 @@ export default {
         right: .24rem;
         width: .32rem;
         height: .32rem;
-        background: url('/static/images/icon12.png') 50% no-repeat;
+        background: url('../../static/images/icon12.png') 50% no-repeat;
         background-size: .32rem;
     }
     .resetBtn{

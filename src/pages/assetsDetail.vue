@@ -1,5 +1,5 @@
 <template>
-    <div class="assetsDetail_container">
+    <div class="assetsDetail_container" ref="scrollview">
         <div class="assetsDetail_header">
             <h3 class="ydb">{{this.$route.query.Readingmoney}}</h3>
             <p class="ydb_t">我的阅读币</p>
@@ -38,7 +38,7 @@
                 </ul>
                 <fail-view v-else></fail-view>
             </div>
-            
+            <p class="load_promt" v-if="loadShow">没有更多了~</p>
         </div>
     </div>
 </template>
@@ -50,45 +50,79 @@ export default {
             current:0,
             zbData:[],
             ydbData:[],
+            loadShow:false,
+            throttle_B:false,
+            scrollview:'',
+            page:1,
         }
     },
     mounted(){
-        this.switchTabbarEvent(this.$route.query.current);
+        this.current = this.$route.query.current;
+        this.axiosEvent();
+        this.scrollview = this.$refs.scrollview;
+        this.scrollview.addEventListener('scroll',this.Pulluploading,false)
     },
     methods:{
         switchTabbarEvent(current){
-            var _self = this;
             this.current = current;
-            if(current == 0){
+            this.page = 1;
+            this.ydbData = [];
+            this.zbData = [];
+            this.loadShow = false;
+            this.scrollview.addEventListener('scroll',this.Pulluploading,false)
+            this.axiosEvent();
+        },
+        axiosEvent(){
+            var _self = this;
+            if(_self.current == 0){
                 _self.$store.state.loadShow = true;
-                _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-coinydRecord',_self.$qs.stringify({page:1,uid:this.$store.state.uid}))
+                _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-coinydRecord',_self.$qs.stringify({page:this.page,uid:this.$store.state.uid}))
                 .then(function(response){
-                    _self.ydbData = response.data
+                    if(response.data == ""){
+                        _self.loadShow = true;
+                        _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false)
+                    }else{
+                        _self.ydbData = _self.ydbData.concat(response.data)
+                    }
                     _self.$store.state.loadShow = false;
-                    console.log(response)
                 })
             }
-            if(current == 1){
+            if(_self.current == 1){
                 _self.$store.state.loadShow = true;
-                _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-coinzRecord',_self.$qs.stringify({page:1,uid:this.$store.state.uid}))
+                _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-coinzRecord',_self.$qs.stringify({page:this.page,uid:this.$store.state.uid}))
                 .then(function(response){
-                    _self.zbData = response.data
+                    if(response.data == ""){
+                        _self.loadShow = true;
+                        _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false)
+                    }else{
+                        _self.zbData = _self.zbData.concat(response.data)
+                    }
                     _self.$store.state.loadShow = false;
-                    console.log(response)
                 })
             }
-        }
+        },
+        Pulluploading(){
+            var _self = this;
+            var scrollTop = _self.scrollview.scrollTop;
+            var scrollHeight = _self.scrollview.scrollHeight;
+            var clientHeight = _self.scrollview.clientHeight;
+            if(scrollHeight - clientHeight < scrollTop+1){
+                if(!_self.throttle_B){
+                    _self.$store.state.loadShow =true;
+                    setTimeout(function(){
+                        _self.page++;
+                        _self.axiosEvent();
+                        _self.throttle_B = false;
+                    },300)
+                    _self.throttle_B = true;
+                }else{
+                    return;
+                }
+            }
+        },
     },
     computed:{
-        switchData(){
-            if(this.current == 0){
-                 _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-coinydRecord',_self.$qs.stringify({page:1,uid:this.$store.state.uid}))
-                .then(function(response){
-                    console.log(response)
-                    return response.data
-                })
-            }
-        }
+        
     },
     components:{
         'fail-view':fail,
@@ -96,9 +130,14 @@ export default {
 }
 </script>
 <style scoped>
+    .assetsDetail_container{
+        height:100vh;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
     .assetsDetail_header{
         height: 4.1rem;
-        background: url('/static/images/recharge.png') top no-repeat;
+        background: url('../../static/images/recharge.png') top no-repeat;
         background-size: 100% auto;
         text-align: center;
     }
@@ -139,6 +178,7 @@ export default {
         color:#909090;
         position: relative;
         transition:.3s;
+        -webkit-tap-highlight-color: transparent;
     }
     .tabbar_wrap h4::after{
         content: '';
@@ -162,7 +202,9 @@ export default {
         align-items: center;
         padding:0.24rem 0;
         border-bottom:0.02rem solid #e1e1e1;
+        -webkit-tap-highlight-color: transparent;
     }
+    .assets_item:nth-last-child(1){border-bottom:none;}
     .assets_item .item_p{
         line-height: .5rem;
         color: #323232;
@@ -179,7 +221,12 @@ export default {
         line-height: .5rem;
         font-weight: 700;
     }
-
+    .load_promt{
+        line-height: .6rem;
+        font-size: .28rem;
+        color: #909090;
+        text-align: center;
+    }
 </style>
 
 

@@ -1,13 +1,13 @@
 <template>
   <div class="home_container">
-    <div class="home_wrap" ref="homeScrolling">
+    <div class="home_wrap" ref="scrollview">
         <div class="banner_container">
             <!-- search -->
-            <div class="search_btn"></div>
+            <div class="search_btn" @click="searchEvent()"></div>
             <!-- Swiper -->
             <div class="swiper-container">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide" v-for="item in bannerData" :key="item.cid">
+                    <div class="swiper-slide" v-for="item in bannerData" :key="item.cid" @click="navigateTochapterDetail(item)">
                         <img :src="item.imgurl" width="100%" alt="">
                     </div>
                 </div>
@@ -17,36 +17,36 @@
         </div>
         <div class="king_list_container">
             <ul class="king_list_wrap">
-                <li class="king_list_item" @click="navigateToRankingList(0)">
+                <li class="king_list_item" @click="navigateToRankingList(3)">
                     <figure><img src="../../static/images/list_01.png" class="king_list_icon" alt=""></figure>
                     <span>女生榜</span>
                 </li>
-                <li class="king_list_item" @click="navigateToRankingList(1)">
+                <li class="king_list_item" @click="navigateToRankingList(2)">
                     <figure><img src="../../static/images/list_02.png" class="king_list_icon" alt=""></figure>
                     <span>男生榜</span>
                 </li>
-                <li class="king_list_item"  @click="navigateToRankingList(2)">
+                <li class="king_list_item"  @click="navigateToRankingList(1)">
                     <figure><img src="../../static/images/list_03.png"  class="king_list_icon" alt=""></figure>
                     <span>人气榜</span>
                 </li>
-                <li class="king_list_item"  @click="navigateToRankingList(3)">
+                <li class="king_list_item"  @click="navigateToRankingList(4)">
                     <figure><img src="../../static/images/list_04.png" class="king_list_icon" alt=""></figure>
                     <span>新作榜</span>
                 </li>
-                <li class="king_list_item"  @click="navigateToRankingList(4)">
+                <!-- <li class="king_list_item"  @click="navigateToRankingList(4)">
                     <figure><img src="../../static/images/list_05.png" class="king_list_icon" alt=""></figure>
                     <span>追更榜</span>
-                </li>
+                </li> -->
             </ul>
         </div>
-        <list-row :row-obj="NewWorksData" :row="2" :title="'新作推荐'"></list-row>
-        <list-row :row-obj="HotWorksData" :row="3" :title="'热门佳作'"></list-row>
-        <list-row :row-obj="essenceWorksData" :row="2" :title="'精品完结'"></list-row>
-        <list-row :row-obj="peopleWorksData" :row="3" :title="'真人漫画'"></list-row>
-        <list-row :row-obj="popularityWorksData" :row="1" :title="'人气作品'"></list-row>
+        <list-row :row-obj="NewWorksData" :row="2" :title="'新作推荐'" v-on:setcartoonclass="setcartoonclass(0)"></list-row>
+        <list-row :row-obj="HotWorksData" :row="3" :title="'热门佳作'" v-on:setcartoonclass="setcartoonclass(1)"></list-row>
+        <list-row :row-obj="essenceWorksData" :row="2" :title="'精品完结'" v-on:setcartoonclass="setcartoonclass(2)"></list-row>
+        <list-row :row-obj="peopleWorksData" :row="3" :title="'真人漫画'" v-on:setcartoonclass="setcartoonclass(3)"></list-row>
+        <list-row :row-obj="popularityWorksData" :row="1" :title="'人气作品'" v-on:setcartoonclass="setcartoonclass(4)"></list-row>
         <!-- 全部作品 -->
         <div class="scroll_bottom">
-            <div class="scroll_b_wrap">
+            <div class="scroll_b_wrap" @click="$router.push('/cartoon')">
                 <img src="../../static/images/scrollBottom.png" class="scroll_b_i" alt="">
                 <span>全部作品</span>
             </div>
@@ -63,6 +63,8 @@ export default {
   data () {
     return {
         throttle_B:false,
+        scrollview:'',
+        page:1,
         // banner推荐
         bannerData:[],
         // 新作推荐
@@ -70,27 +72,37 @@ export default {
         // 热门佳作
         HotWorksData:[],
         // 精品完结
-        essenceWorksData:{},
+        essenceWorksData:[],
         // 真人漫画
-        peopleWorksData:{},
+        peopleWorksData:[],
         // 人气作品
-        popularityWorksData:{},
+        popularityWorksData:[],
         
     }
   },
   mounted(){
-    this.loadPluginEvent();
     this.axiosDataEvent();
-    window.addEventListener('scroll',this.Pulluploading,false);
-    
+    this.scrollview = this.$refs.scrollview;
+    this.scrollview.addEventListener('scroll',this.Pulluploading,false);
   },
   components:{
     'list-row':listRow,
   },
   methods:{
+    //   查看更多
+    setcartoonclass(classIndex){
+        this.$router.push({path:'/cartoon/moreCartoon',query:{classIndex}})
+        console.log(classIndex)
+    },
+    // banner跳转
+    navigateTochapterDetail(item){
+        this.$router.push({path:'/chapter/chapterDetail',query: {sortNumber:1,cid:item.cid}});
+    },
     // 加载插件
     loadPluginEvent(){
         var swiper = new Swiper('.swiper-container', {
+            loop: true,
+            autoplayDisableOnInteraction: false,
             pagination: {
                 el: '.swiper-pagination',
                 type: 'bullets',
@@ -99,7 +111,6 @@ export default {
                 delay: 3000,
                 disableOnInteraction: false,
             },
-            loop: true,
         });
     },
     // 加载数据
@@ -114,34 +125,44 @@ export default {
             _self.essenceWorksData = data.jqwz;
             _self.peopleWorksData = data.zrmh;
             _self.popularityWorksData = data.rqzp;
+            _self.$nextTick(function () {_self.loadPluginEvent()})
             console.log(data)
         })
-        _self.$axios.get('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-select_type?page=1',{type:this.type,freePay:0,newHot:1})
+    },
+    // 加载数据
+    ClassloadEvent(){
+        var _self = this;
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-select_type',_self.$qs.stringify({page:_self.page++,type:0,freePay:0,serialEnd:0,newHot:1}))
         .then(function(response){
-            console.log(response)
+            if(response.data == ""){
+                _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false);
+            }else{
+                _self.popularityWorksData = _self.popularityWorksData.concat(response.data);
+            }
+            console.log(response.data)
+            _self.$store.state.loadShow =false;
         })
     },
-    // 跳转
+    // 搜素
+    searchEvent(){
+        this.$router.push({path:'/cartoon/search',})
+    },
+    // 排行跳转
     navigateToRankingList(current){
         this.$router.push({path:'/king/rankingList',query:{current:current}})
     },
     // 上拉加载
     Pulluploading(){
         var _self = this;
-        var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;
-        var scrollHeight = document.querySelector('.home_wrap').clientHeight;
-        var screenHeight = window.screen.height||window.innerHeight;
-        var tabbarHeight = document.querySelector('.tabbar_container').clientHeight;
-        var bottomHeight = document.querySelector('.scroll_bottom').clientHeight;
-        if(scrollHeight - screenHeight < scrollTop - tabbarHeight + bottomHeight){
+        var scrollTop = _self.scrollview.scrollTop;
+        var scrollHeight = _self.scrollview.scrollHeight;
+        var clientHeight = _self.scrollview.clientHeight;
+        if(scrollHeight - clientHeight < scrollTop+1){
             if(!_self.throttle_B){
-                console.log('调用数据')
-                
+                _self.ClassloadEvent();
                 _self.$store.state.loadShow =true;
-                console.log(_self.$store.state.loadShow)
                 setTimeout(function(){
                     _self.throttle_B = false;
-                    _self.$store.state.loadShow =false;
                 },1000)
                 _self.throttle_B = true;
             }else{
@@ -151,7 +172,7 @@ export default {
     }
   },
   destroyed(){
-    window.removeEventListener('scroll',this.Pulluploading,false);
+    this.scrollview.removeEventListener('scroll',this.Pulluploading,false);
   },
 }
 </script>
@@ -159,10 +180,11 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
     @import url("../../static/css/swiper-4.3.3.min.css");
-    .home_wrap{overflow-y: scroll; -webkit-overflow-scrolling:touch;}
+    .home_container{}
+    .home_wrap{overflow-y: scroll; -webkit-overflow-scrolling:touch;height:-webkit-fill-available;}
     img{vertical-align: middle;}
     /* banner */
-    .banner_container{position: relative;}
+    .banner_container{position: relative;min-height: 4.7rem;}
     .banner_container::after{
         content:'';
         width:100%;
@@ -184,6 +206,7 @@ export default {
         position: absolute;
         right: .36rem;
         z-index: 2;
+        -webkit-tap-highlight-color: transparent;
         top: .13rem;
     }
     .swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction{
@@ -205,6 +228,7 @@ export default {
         padding-top:0.56rem;
         position: relative;
         line-height: 0.56rem;
+        -webkit-tap-highlight-color: transparent;
     }
     .king_list_icon{
         font-size:0;

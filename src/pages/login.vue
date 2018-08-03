@@ -2,7 +2,7 @@
     <div :class="['login_container','bg'+bgNum]">
         <div class="_goback" @click="goback()"></div>
         <div class="login_wrap">
-            <img src="/static/images/logo.png" class="logo" alt="">
+            <img src="../../static/images/logo.png" class="logo" alt="">
             <div class="form_wrap">
                 <div class="form_item">
                     <input type="text" class="phone" v-model.trim="phone" placeholder="输入手机号" >
@@ -84,37 +84,37 @@ export default {
 </script>
 <style scoped>
     .bg1{
-        background-image: url('/static/images/bg1.jpg');
+        background-image: url('../../static/images/bg1.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg2{
-        background-image: url('/static/images/bg2.jpg');
+        background-image: url('../../static/images/bg2.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg3{
-        background-image: url('/static/images/bg3.jpg');
+        background-image: url('../../static/images/bg3.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg4{
-        background-image: url('/static/images/bg4.jpg');
+        background-image: url('../../static/images/bg4.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg5{
-        background-image: url('/static/images/bg5.jpg');
+        background-image: url('../../static/images/bg5.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg6{
-        background-image: url('/static/images/bg6.jpg');
+        background-image: url('../../static/images/bg6.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
     .bg7{
-        background-image: url('/static/images/bg7.jpg');
+        background-image: url('../../static/images/bg7.jpg');
         background-repeat: no-repeat;
         background-size: 100% 100%;
     }
@@ -136,7 +136,7 @@ export default {
     ._goback{
         width: 0.24rem;
         height: 0.42rem;
-        background: url('/static/images/back_icon.png') 50% no-repeat;
+        background: url('../../static/images/back_icon.png') 50% no-repeat;
         background-size: 0.24rem;
         position: absolute;
         left: 0.24rem;
@@ -169,12 +169,12 @@ export default {
         position: relative;
     }
     .form_wrap .form_item:nth-child(1){
-        background-image: url('/static/images/login_phone_icon.png');
+        background-image: url('../../static/images/login_phone_icon.png');
         background-position: left .5rem center;
         background-size: .3rem;
     }
     .form_wrap .form_item:nth-child(2){
-        background-image: url('/static/images/login_password_icon.png');
+        background-image: url('../../static/images/login_password_icon.png');
         background-position: left .5rem center;
         background-size: .28rem;
     }
@@ -198,7 +198,7 @@ export default {
         right: .24rem;
         width: .32rem;
         height: .32rem;
-        background: url('/static/images/icon12.png') 50% no-repeat;
+        background: url('../../static/images/icon12.png') 50% no-repeat;
         background-size: .32rem;
     }
     .SigninBtn{

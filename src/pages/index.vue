@@ -6,7 +6,7 @@
             <li><router-link to="/home" class="tabbar_naviTo">
                 <span class="tabbar_icon"></span>
              </router-link></li>
-             <li><router-link to="/category" class="tabbar_naviTo">
+             <li><router-link to="/cartoon" class="tabbar_naviTo">
                 <span class="tabbar_icon"></span>
              </router-link></li>
              <li><router-link to="/bookshelf" class="tabbar_naviTo">

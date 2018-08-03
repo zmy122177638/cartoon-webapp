@@ -2,21 +2,21 @@
   <div class="listRow_container">
     <div class="listRow_title">
         <h2>{{title}}</h2>
-        <span class="more_btn" @click="navigateToTotalTypeCartoon(title)">更多</span>
+        <span class="more_btn" @click="$emit('setcartoonclass')">更多</span>
     </div>
     <ul class="listRow_content">
         <li :class="classSwitch" 
             v-for="item in rowObj" 
             :key="item.id" 
             @click="navigateToDetailes(item)">
-            <figure><img :src="item.img_url" alt="" class="listRow_c_i"></figure>
+            <figure><img src="" v-lazy="item.img_url" alt="" class="listRow_c_i"></figure>
             <div class="listRow_c_c" v-if="row != '1'">
                 <p>{{item.name}}</p>
                 <p>{{item.brief}}</p>
             </div>
             <div class="listRow_c_c_1" v-else>
                 <p>{{item.name}}</p>
-                <p>更新至第<span style="color:rgb(253, 125, 73);">{{item.update}}</span></p>
+                <p>更新至第<span style="color:rgb(253, 125, 73);">{{item.set_number}}</span></p>
             </div>
         </li>
     </ul>
@@ -26,7 +26,7 @@
 <script>
 export default {
   name: 'listRow',
-  props:["rowObj","row",'title'],
+  props:["rowObj","row",'title','cartoonType'],   //rowobj 子数组 row排列参数仅支持1,2,3  title标题 cartoonType 分类
   data () {
     return {
         
@@ -37,14 +37,8 @@ export default {
   methods:{
     // 详情页
     navigateToDetailes(item){
-        this.$router.push({path:'/category/cartoonDetail',query:{}})
-        console.log(item)
+        this.$router.push({path:'/cartoon/cartoonDetail',query:{cid:item.cid}})
     },
-    // 所有类型页
-    navigateToTotalTypeCartoon(item){
-        console.log(item)
-        this.$router.push({path:'/category/moreCartoon',query:{}})
-    }
   },
   computed:{
     classSwitch(){
@@ -58,7 +52,7 @@ export default {
             return 'listRow3_c_item'
         }
     }
-  }
+  },
 }
 </script>
 
@@ -79,6 +73,7 @@ export default {
         right:0.2rem;
         transform: translateY(-50%);
         top:50%;
+        -webkit-tap-highlight-color: transparent;
     }
     .listRow_title .more_btn::after{
         content:'';

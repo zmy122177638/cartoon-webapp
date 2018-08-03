@@ -1,43 +1,43 @@
 <template>
   <div class="category_container">
     <div class="category_head">
-      <h1 class="category_title">分类<span class="search_b"></span></h1>
+      <h1 class="category_title">分类<span class="search_b" @click="searchEvent()"></span></h1>
     </div>
-    <div class="category_wrap">
+    <div class="category_wrap" ref="scrollBox">
       <div class="category_select">
         <ul class="select_wrap">
-          <li :class="['category_item',type==0?'on':'']" @click="selectTypeEvent(0,serialEnd,freePay,newHot)">全部</li>
-          <li :class="['category_item',type==1?'on':'']" @click="selectTypeEvent(1,serialEnd,freePay,newHot)">恋爱</li>
-          <li :class="['category_item',type==2?'on':'']" @click="selectTypeEvent(2,serialEnd,freePay,newHot)">都市</li>
-          <li :class="['category_item',type==3?'on':'']" @click="selectTypeEvent(3,serialEnd,freePay,newHot)">伦理</li>
-          <li :class="['category_item',type==4?'on':'']" @click="selectTypeEvent(4,serialEnd,freePay,newHot)">异能</li>
-          <li :class="['category_item',type==5?'on':'']" @click="selectTypeEvent(5,serialEnd,freePay,newHot)">搞笑</li>
-          <li :class="['category_item',type==6?'on':'']" @click="selectTypeEvent(6,serialEnd,freePay,newHot)">真人</li>
-          <li :class="['category_item',type==7?'on':'']" @click="selectTypeEvent(7,serialEnd,freePay,newHot)">其他</li>
+          <li :class="['category_item',type==0?'on':'']" @click="selectTypeEvent(1,0,serialEnd,freePay,newHot)">全部</li>
+          <li :class="['category_item',type==1?'on':'']" @click="selectTypeEvent(1,1,serialEnd,freePay,newHot)">恋爱</li>
+          <li :class="['category_item',type==2?'on':'']" @click="selectTypeEvent(1,2,serialEnd,freePay,newHot)">都市</li>
+          <li :class="['category_item',type==3?'on':'']" @click="selectTypeEvent(1,3,serialEnd,freePay,newHot)">伦理</li>
+          <li :class="['category_item',type==4?'on':'']" @click="selectTypeEvent(1,4,serialEnd,freePay,newHot)">异能</li>
+          <li :class="['category_item',type==5?'on':'']" @click="selectTypeEvent(1,5,serialEnd,freePay,newHot)">搞笑</li>
+          <li :class="['category_item',type==6?'on':'']" @click="selectTypeEvent(1,6,serialEnd,freePay,newHot)">真人</li>
+          <li :class="['category_item',type==7?'on':'']" @click="selectTypeEvent(1,7,serialEnd,freePay,newHot)">其他</li>
           <li :class="['more_category',moreWrapShow?'on':'']" @click="moreSelectEvent()">筛选</li>
         </ul>
         <div class="more_container" v-show="moreWrapShow">
           <ul class="more_wrap">
-            <li :class="['category_item',serialEnd==0?'on':'']" @click="selectTypeEvent(type,0,freePay,newHot)">全部</li>
-            <li :class="['category_item',serialEnd==1?'on':'']" @click="selectTypeEvent(type,1,freePay,newHot)">连载</li>
-            <li :class="['category_item',serialEnd==2?'on':'']" @click="selectTypeEvent(type,2,freePay,newHot)">完结</li>
+            <li :class="['category_item',serialEnd==0?'on':'']" @click="selectTypeEvent(1,type,0,freePay,newHot)">全部</li>
+            <li :class="['category_item',serialEnd==1?'on':'']" @click="selectTypeEvent(1,type,1,freePay,newHot)">连载</li>
+            <li :class="['category_item',serialEnd==2?'on':'']" @click="selectTypeEvent(1,type,2,freePay,newHot)">完结</li>
           </ul>
           <ul class="more_wrap">
-            <li :class="['category_item',freePay==0?'on':'']" @click="selectTypeEvent(type,serialEnd,0,newHot)">全部</li>
-            <li :class="['category_item',freePay==1?'on':'']" @click="selectTypeEvent(type,serialEnd,1,newHot)">免费</li>
-            <li :class="['category_item',freePay==2?'on':'']" @click="selectTypeEvent(type,serialEnd,2,newHot)">付费</li>
+            <li :class="['category_item',freePay==0?'on':'']" @click="selectTypeEvent(1,type,serialEnd,0,newHot)">全部</li>
+            <li :class="['category_item',freePay==1?'on':'']" @click="selectTypeEvent(1,type,serialEnd,1,newHot)">免费</li>
+            <li :class="['category_item',freePay==2?'on':'']" @click="selectTypeEvent(1,type,serialEnd,2,newHot)">付费</li>
           </ul>
           <ul class="more_wrap">
-            <li :class="['category_item',newHot==0?'on':'']" @click="selectTypeEvent(type,serialEnd,freePay,0)">全部</li>
-            <li :class="['category_item',newHot==1?'on':'']" @click="selectTypeEvent(type,serialEnd,freePay,1)">最热</li>
-            <li :class="['category_item',newHot==2?'on':'']" @click="selectTypeEvent(type,serialEnd,freePay,2)">最新</li>
+            <li :class="['category_item',newHot==0?'on':'']" @click="selectTypeEvent(1,type,serialEnd,freePay,0)">全部</li>
+            <li :class="['category_item',newHot==1?'on':'']" @click="selectTypeEvent(1,type,serialEnd,freePay,1)">最热</li>
+            <li :class="['category_item',newHot==2?'on':'']" @click="selectTypeEvent(1,type,serialEnd,freePay,2)">最新</li>
           </ul>
         </div>
       </div>
       <div class="category_content" v-if="cartoonData.length != ''">
         <ul class="cartoon_wrap">
           <li class="cartoon_item" v-for="item in cartoonData" :key="item.cid" @click="navigateToDetailes(item)">
-            <figure><img :src="item.img_url" class="cartoon_img" alt=""></figure>
+            <figure><img src="" v-lazy="item.img_url" class="cartoon_img" alt=""></figure>
             <div class="cartoon_C">
               <h3 class="cartoon_n"><p>{{item.name}}</p><p>更新到{{item.set_number}}话</p></h3>
               <p class="cartoon_t">
@@ -68,7 +68,8 @@ export default {
       newHot:0,
       throttle_B:false,
       loadEnd:false,
-      cartoonData:[]
+      cartoonData:[],
+      scrollview:null,
     }
   },
   components:{
@@ -76,65 +77,79 @@ export default {
   },
   mounted(){
     this.cartoonDataEvent();
-    window.addEventListener('scroll',this.Pulluploading,false);
+    this.scrollview = this.$refs.scrollBox;
+    this.scrollview.addEventListener('scroll',this.Pulluploading,false);
   },
   methods:{
-    cartoonDataEvent(){
+    // axiosType  0初始数据 1
+    cartoonDataEvent(axiosType){
       var _self = this;
-      _self.$axios.post(`https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-select_type?page=1&type=${this.type}&serialEnd=${this.serialEnd}&freePay=${this.freePay}&newHot=${this.newHot}`)
+      _self.$store.state.loadShow =true;
+      _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-select_type',_self.$qs.stringify({page:_self.page,type:_self.type,serialEnd:_self.serialEnd,freePay:_self.freePay,newHot:_self.newHot}))
       .then(function(response){
-        let data = response.data;
-        _self.cartoonData = data;
-        console.log(data)
-      })
-      .catch(function(){
-        console.log('请求失败')
+        console.log(response)
+        if(response.data == ""){
+          _self.loadEnd = true;
+          _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false);
+        }else{
+          if(axiosType){
+            _self.cartoonData = _self.cartoonData.concat( response.data);
+          }else{
+            _self.cartoonData = response.data;
+            if(_self.cartoonData.length < 10){
+              _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false);
+              _self.loadEnd = true;
+            }
+          }
+        }
+        _self.$store.state.loadShow =false;
       })
     },
     // 上拉加载
     Pulluploading(){
-        var _self = this;
-        var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;
-        var scrollHeight = document.querySelector('.category_wrap').clientHeight;
-        var screenHeight = window.screen.height||window.innerHeight;
-        var tabbarHeight = document.querySelector('.tabbar_container').clientHeight;
-        var bottomHeight = document.querySelector('.category_head').clientHeight;
-        console.log(scrollTop,scrollHeight,screenHeight,tabbarHeight)
-        if(scrollHeight - screenHeight - tabbarHeight < scrollTop-bottomHeight){
-            if(!_self.throttle_B){
-                console.log('调用数据')
-                _self.$store.state.loadShow =true;
-                console.log(_self.$store.state.loadShow)
-                setTimeout(function(){
-                    _self.throttle_B = false;
-                    _self.$store.state.loadShow =false;
-                },1000)
-                _self.throttle_B = true;
-            }else{
-                return;
-            }
+      var _self = this;
+      var scrollTop = _self.scrollview.scrollTop;
+      var scrollHeight = _self.scrollview.scrollHeight;
+      var clientHeight = _self.scrollview.clientHeight;
+      if(scrollHeight - clientHeight < scrollTop+1){
+        if(!_self.throttle_B){
+          setTimeout(function(){
+            _self.page++;
+            _self.cartoonDataEvent(1);
+            _self.throttle_B = false;
+          },300)
+          _self.throttle_B = true;
+        }else{
+          return;
         }
+      }
     },
     // 漫画详情
     navigateToDetailes(item){
-      console.log(item)
-      this.$router.push({path:'/category/cartoonDetail',query:{cid:item.cid}})
+      this.$router.push({path:'/cartoon/cartoonDetail',query:{cid:item.cid}})
     },
     // 类型选择
-    selectTypeEvent(type,serialEnd,freePay,newHot){
+    selectTypeEvent(page,type,serialEnd,freePay,newHot){
+      this.page = page;
       this.type = type;
       this.serialEnd = serialEnd;
       this.freePay = freePay;
       this.newHot = newHot;
-      this.cartoonDataEvent();
+      this.loadEnd = false;
+      this.scrollview.addEventListener('scroll',this.Pulluploading,false);
+      this.cartoonDataEvent(0);
     },
     // 筛选
     moreSelectEvent(){
       this.moreWrapShow = !this.moreWrapShow;
-    }
+    },
+    // 搜素
+    searchEvent(){
+        this.$router.push({path:'/cartoon/search',})
+    },
   },
   destroyed(){
-    window.removeEventListener('scroll',this.Pulluploading,false);
+    this.scrollview.removeEventListener('scroll',this.Pulluploading,false);
   }
 }
 </script>
@@ -146,6 +161,7 @@ export default {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     box-sizing: border-box;
+    padding:0.8rem 0 0;
   }
   .category_head{
     position: fixed;
@@ -174,10 +190,12 @@ export default {
     right:0.36rem;
     top:50%;
     margin-top:-0.19rem;
+    -webkit-tap-highlight-color: transparent;
   }
   .category_wrap{
-    padding:0.8rem 0 0;
     overflow: auto;
+    height: inherit;
+    -webkit-overflow-scrolling: touch;
   }
   /* 选择 */
   .category_select{
@@ -203,6 +221,7 @@ export default {
     color:#909090;
     border-radius:0.7rem;
     margin: 0 .15rem .14rem 0;
+    -webkit-tap-highlight-color: transparent;
   }
   .category_item:nth-child(5n){margin-right:0;}
   .more_category{
@@ -235,6 +254,7 @@ export default {
     display: flex;
     align-items: center;
     margin-bottom:0.4rem;
+    -webkit-tap-highlight-color: transparent;
   } 
   .cartoon_item:nth-last-child(1){margin-bottom:0;}
   .cartoon_img{

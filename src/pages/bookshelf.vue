@@ -6,54 +6,56 @@
           <li :class="[current==0?'on':'','new']" @click="switchTabbarEvent(0)">收藏</li>
           <li :class="[current==1?'on':'']" @click="switchTabbarEvent(1)">历史</li>
         </ul>
-        <div :class="['setBtn',edit_B?'on':'']" @click="editEvent()">编辑</div>
+        <div :class="['setBtn',edit_B?'on':'']" @click="editEvent()" v-show="editBtnShow">编辑</div>
       </h1>
     </div>
     <div class="bookshelf_wrap">
       <!-- 历史 -->
       <div class=“history_container” v-show="current==1">
-        <ul class="history_wrap">
+        <ul class="history_wrap" v-if="historyData.length != 0">
           <li class="history_item" v-for="item in historyData" :key="item.cid" @click="edit_B?editListEvent(item):navigateTodetailEvent(item)">
             <span :class="['checkBox',item.ischeck?'on':'']"></span>
             <div :class="['history_content',edit_B?'on':'']">
-              <figure><img :src="item.img_url" class="history_img"></figure>
+              <figure><img src="" v-lazy="item.img_url" class="history_img"></figure>
               <div class="history_c">
                 <p class="h_t">{{item.name}}</p>
                 <p class="h_n">更新到{{item.set_number}}话</p>
-                <p class="h_j">续看{{item.chapterid}}话</p>
+                <p class="h_j">续看{{item.sort_number}}话</p>
               </div>
             </div>
           </li>
         </ul>
+        <fail-view v-else></fail-view>
       </div>
       <!-- 收藏 -->
       <div class="collec_container" v-show="current==0">
-        <ul class="collec_wrap">
+        <ul class="collec_wrap" v-if="collecData.length != 0">
           <li class="collec_item" v-for="item in collecData" :key="item.cid" @click="edit_B?editListEvent(item):navigateTodetailEvent(item)">
             <figure class="pst_rlt active">
-              <img :src="item.img_url" class="colle_img" alt="">
+              <img src="" v-lazy="item.img_url" class="colle_img" alt="">
               <div :class="['imgbg_cover',item.ischeck?'on':'']" v-show="edit_B"></div>
             </figure>
             <div class="collec_c">
               <p class="c_t">{{item.name}}</p>
-              <p class="c_n">{{item.chapterid}}话/{{item.set_number}}话</p>
+              <p class="c_n">{{item.sort_number}}话/{{item.set_number}}话</p>
             </div>
           </li>
         </ul>
+        <fail-view v-else></fail-view>
       </div>
       <!-- 猜你喜欢 -->
-      <div class="like_container">
+      <!-- <div class="like_container">
         <div class="like_title"><p class="l_t">猜你喜欢</p></div>
         <ul class="like_wrap">
           <li class="like_item" v-for="item in likeData" :key="item.cid">
-            <figure><img :src="item.img_url2" class="like_img" alt=""></figure>
+            <figure><img :src="item.img_url" class="like_img" alt=""></figure>
             <p class="l_n">{{item.name}}</p>
           </li>
         </ul>
-      </div>
+      </div> -->
     </div>
     <!-- 编辑按钮 -->
-    <div :class="['setBtn_container',startAnimate?edit_B?'fadeInUp':'fadeInDown':'hidden']">
+    <div :class="['setBtn_container',startAnimate?edit_B?'fadeInUp':'fadeInDown':'hidden']" v-show="editBtnShow">
       <div class="setBtn_wrap">
         <div :class="['s_btn',historyAllCheck?'on':'']" @click="allEditEvent()">全选</div>
         <div class="s_btn" @click="delEditEvent()">删除</div>
@@ -63,6 +65,7 @@
 </template>
 
 <script>
+import fail from '../components/fail'
 export default {
   name: 'bookshelf',
   data () {
@@ -75,6 +78,9 @@ export default {
         collecData:[],
         likeData:[]
     }
+  },
+  components:{
+    'fail-view':fail
   },
   mounted(){
     this.axjaEvent(this.current)
@@ -89,59 +95,72 @@ export default {
         if(trueArr.length == 0){return true;}else{return false;}
       }
     },
+    editBtnShow(){
+      if(this.current == 0){
+        if(this.collecData.length == 0){return false;}else{return true;}
+      }else if(this.current == 1){
+        if(this.historyData.length == 0){return false;}else{return true;}
+      }
+    }
   },
   methods:{
     switchTabbarEvent(current){
-      this.current = current;
-      this.edit_B = false;
-      this.historyData.forEach(function(item){item.ischeck = false})
-      this.collecData.forEach(function(item){item.ischeck = false})
-      this.axjaEvent(this.current)
+      if(this.$store.state.isLogin){
+        this.current = current;
+        this.edit_B = false;
+        this.historyData.forEach(function(item){item.ischeck = false})
+        this.collecData.forEach(function(item){item.ischeck = false})
+        this.axjaEvent(this.current)
+      }else{
+        this.$router.push('/mypage/login') 
+      }
     },
     // 数据
     axjaEvent(current){
       var _self = this;
+      _self.$store.state.loadShow = true;
       if(current == 1){
-        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-browse',_self.$qs.stringify({uid:123456}))
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-browse',_self.$qs.stringify({uid:_self.$store.state.uid}))
         .then(function(response){
           response.data.forEach(function(item){item.ischeck = false})
           _self.historyData = response.data;
+          _self.$store.state.loadShow = false;
           console.log(_self.historyData)
         })
       }
       if(current == 0){
-        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-collection',_self.$qs.stringify({uid:123456}))
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-collection',_self.$qs.stringify({uid:_self.$store.state.uid}))
         .then(function(response){
           response.data.forEach(function(item){item.ischeck = false})
           _self.collecData = response.data;
+          _self.$store.state.loadShow = false;
           console.log(_self.collecData)
         })
       }
-      if(!_self.onceFN){
-         _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-youLike',_self.$qs.stringify({uid:123456}))
-        .then(function(response){
-          _self.likeData = response.data;
-          _self.onceFN = true; //只执行一次
-          console.log(_self.likeData)
-        })
-      }
-
+      // if(!_self.onceFN){
+      //    _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-youLike',_self.$qs.stringify({uid:_self.$store.state.uid}))
+      //   .then(function(response){
+      //     _self.likeData = response.data;
+      //     _self.onceFN = true; //只执行一次
+      //     _self.$store.state.loadShow = false;
+      //     console.log(_self.likeData)
+      //   })
+      // }
     },
     // 编辑
     editEvent(){
-      this.edit_B = !this.edit_B;
       // 历史
+      this.edit_B = !this.edit_B;
       if(this.current==1){
         this.startAnimate = true;
         if(!this.edit_B){
-          console.log(this)
           this.historyData.forEach(function(item){item.ischeck = false})
         }
       }
       // 收藏
       if(this.current==0){
         this.startAnimate = true;
-         if(!this.edit_B){
+        if(!this.edit_B){
           this.collecData.forEach(function(item){item.ischeck = false})
         }
       }
@@ -163,7 +182,7 @@ export default {
     },
     // 删除
     delEditEvent(){
-      let checkedArr = [];
+      let checkedArr = new Array();
       var _self = this;
       if(_self.current == 1){
         _self.historyData.forEach(function(item){if(item.ischeck){checkedArr.push(item.cid)}})
@@ -180,11 +199,18 @@ export default {
             content: '确定删除历史吗？'
             ,btn: ['确定', '取消']
             ,yes: function(index){
-              console.log('删除成功')
-              console.log(checkedArr)
-              _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-deleteBrowse',_self.$qs.stringify({uid:123456,cidArr:checkedArr}))
+              checkedArr = checkedArr.length == _self.historyData.length?0:checkedArr;
+              _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-deleteBrowse',_self.$qs.stringify({uid:_self.$store.state.uid,cidArr:JSON.stringify(checkedArr)}))
               .then(function(response){
-                console.log(response)
+                layer.open({
+                  content: '删除成功'
+                  ,skin: 'msg'
+                  ,time: 2 //2秒后自动关闭
+                  ,success:function(){
+                    _self.axjaEvent(_self.current)
+                    _self.edit_B = !_self.edit_B;
+                  }
+                });
               })
               layer.close(index);
             }
@@ -206,11 +232,18 @@ export default {
             content: '确定删除收藏吗？'
             ,btn: ['确定', '取消']
             ,yes: function(index){
-              console.log('删除成功')
-              console.log(checkedArr)
-              _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-deleteCollection',_self.$qs.stringify({uid:123456,cidArr:checkedArr}))
+              checkedArr = checkedArr.length == _self.collecData.length?0:checkedArr;
+              _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-deleteCollection',_self.$qs.stringify({uid:_self.$store.state.uid,cidArr:JSON.stringify(checkedArr)}))
               .then(function(response){
-                console.log(response)
+                layer.open({
+                  content: '删除成功'
+                  ,skin: 'msg'
+                  ,time: 2 //2秒后自动关闭
+                  ,success:function(){
+                    _self.axjaEvent(_self.current)
+                    _self.edit_B = !_self.edit_B;
+                  }
+                });
               })
               layer.close(index);
             }
@@ -220,12 +253,11 @@ export default {
     },
     // 跳转
     navigateTodetailEvent(item){
-      if(item.chapterid == 0){
-        console.log('漫画目录')
+      if(item.sort_number == 0){
+        this.$router.push({path:'/cartoon/cartoonDetail',query:{cid:item.cid}})
       }else{
-        console.log('漫画章节详情页')
+        this.$router.push({path:'/chapter/chapterDetail',query:{cid:item.cid,sortNumber:item.sort_number,chaptertotalNum:item.set_number}})
       } 
-      console.log('跳转')
     }
   }
 }
@@ -269,6 +301,7 @@ export default {
     font-size: .3rem;
     color: #fff;
     font-weight: 400;
+    -webkit-tap-highlight-color: transparent;
   }
   .setBtn.on{
     background-image: url('../../static/images/icon9.png');
@@ -299,6 +332,7 @@ export default {
     border-bottom-left-radius: 0.7rem;
     border-top-right-radius: 0.7rem;
     border-bottom-right-radius: 0.7rem;
+    -webkit-tap-highlight-color: transparent;
   }
   .bookshelf_tabbar li.on{
     background-color: #fff;
@@ -324,6 +358,7 @@ export default {
     margin-bottom: 0.4rem;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
   .history_item .history_content{
     position: relative;
@@ -354,6 +389,7 @@ export default {
     height: 1.46rem;
     vertical-align: middle;
     object-fit: cover;
+    background-color:#ffffff;
   }
   .history_c{
     margin-left:0.3rem;
@@ -409,6 +445,7 @@ export default {
     text-align: center;
     margin-right:0.21rem;
     margin-bottom: 0.3rem;
+    -webkit-tap-highlight-color: transparent;
   }
   .collec_item:nth-child(3n){margin-right:0;}
   .pst_rlt{position: relative;}
@@ -497,6 +534,7 @@ export default {
     flex-direction: column;
     text-align: center;
     margin-right:0.21rem;
+    -webkit-tap-highlight-color: transparent;
   }
   .like_item:nth-child(3n){margin-right:0;}
   .like_item .like_img{
@@ -551,7 +589,7 @@ export default {
     color: #909090;
     display: inline-block;
     text-align: center;
-    
+    -webkit-tap-highlight-color: transparent;
   }
   .setBtn_wrap .s_btn:nth-child(1){border-right:0.02rem solid #e1e1e1;}
   .setBtn_wrap .s_btn:nth-child(1)::before{

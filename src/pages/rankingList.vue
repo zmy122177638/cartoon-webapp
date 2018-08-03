@@ -2,70 +2,38 @@
   <div class="rankingList_container">
     <div class="rankingList_wrap">
         <ul class="ranking_tabbar">
-            <li :class="['tabbar',current==0?'on':'']" @click="switchTabbarEvent(0)">女生榜</li>
-            <li :class="['tabbar',current==1?'on':'']" @click="switchTabbarEvent(1)">男生榜</li>
-            <li :class="['tabbar',current==2?'on':'']" @click="switchTabbarEvent(2)">人气榜</li>
-            <li :class="['tabbar',current==3?'on':'']" @click="switchTabbarEvent(3)">新作榜</li>
-            <li :class="['tabbar',current==4?'on':'']" @click="switchTabbarEvent(4)">追更榜</li>
+            <li :class="['tabbar',current==3?'on':'']" @click="switchTabbarEvent(3)">女生榜</li>
+            <li :class="['tabbar',current==2?'on':'']" @click="switchTabbarEvent(2)">男生榜</li>
+            <li :class="['tabbar',current==1?'on':'']" @click="switchTabbarEvent(1)">人气榜</li>
+            <li :class="['tabbar',current==4?'on':'']" @click="switchTabbarEvent(4)">新作榜</li>
+            <!-- <li :class="['tabbar',current==5?'on':'']" @click="switchTabbarEvent(5)">追更榜</li> -->
         </ul>
         <div class="ranking_content">
-            <div class="totabbar_wrap">
+            <!-- <div class="totabbar_wrap">
                 <div class="tabbar_list">
                     <span :class="zgcurrent==0?'on':''" @click="switchzgcurrentEvent(0)">本周</span>
                     <span :class="zgcurrent==1?'on':''" @click="switchzgcurrentEvent(1)">上周</span>
                     <span :class="zgcurrent==2?'on':''" @click="switchzgcurrentEvent(2)">更早</span>
                 </div>
-            </div>
+            </div> -->
             <div class="king1">
-                <div class="king_item">
+                <div class="king_item" v-for="(item,index) in TrikingData" :key="item.cid" @click="navigateTocartoonEvent(item)">
                     <p class="k_t">TOP</p>
-                    <p class="k_k">1</p>
-                    <figure><img src="http://img.super-dreamers.com/xqmall/images/f056b595-1e8c-4aeb-84f8-4b9967c49529.jpg@75Q" alt=""></figure>
-                    <p class="k_n">爱上男闺蜜</p>
-                    <p class="k_a">anles</p>
-                </div>
-                <div class="king_item">
-                    <p class="k_t">TOP</p>
-                    <p class="k_k">2</p>
-                    <figure><img src="http://img.super-dreamers.com/xqmall/images/f056b595-1e8c-4aeb-84f8-4b9967c49529.jpg@75Q" alt=""></figure>
-                    <p class="k_n">爱上男闺蜜</p>
-                    <p class="k_a">anles</p>
-                </div>
-                <div class="king_item">
-                    <p class="k_t">TOP</p>
-                    <p class="k_k">3</p>
-                    <figure><img src="http://img.super-dreamers.com/xqmall/images/f056b595-1e8c-4aeb-84f8-4b9967c49529.jpg@75Q" alt=""></figure>
-                    <p class="k_n">爱上男闺蜜</p>
-                    <p class="k_a">anles</p>
+                    <p class="k_k">{{index+1}}</p>
+                    <figure><img :src="item.img_url" alt=""></figure>
+                    <p class="k_n">{{item.name}}</p>
+                    <p class="k_a">{{item.author}}</p>
                 </div>
             </div>
             <div class="king2">
                 <ul class="king2_wrap">
-                    <li class="king2_item">
-                        <p class="k2_k">4</p>
-                        <figure><img src="http://img.super-dreamers.com/xqmall/images/f81de1a3-8094-45d2-9904-453e27071a4c.jpg@75Q" alt="" class="king2_img"></figure>
+                    <li class="king2_item" v-for="(item,index) in restkingData" :key="item.cid" @click="navigateTocartoonEvent(item)">
+                        <p class="k2_k">{{index+4}}</p>
+                        <figure><img :src="item.img_url"></figure>
                         <div class="king2_c">
-                            <p class="k2_n">哥哥，多爱我一天哥哥</p>
-                            <p class="k2_g">更新到41话</p>
-                            <p class="k2_ty"><span>恋爱</span></p>
-                        </div>
-                    </li>
-                    <li class="king2_item">
-                        <p class="k2_k">5</p>
-                        <figure><img src="http://img.super-dreamers.com/xqmall/images/f81de1a3-8094-45d2-9904-453e27071a4c.jpg@75Q" alt="" class="king2_img"></figure>
-                        <div class="king2_c">
-                            <p class="k2_n">哥哥，多爱我一天哥哥</p>
-                            <p class="k2_g">更新到41话</p>
-                            <p class="k2_ty"><span>恋爱</span></p>
-                        </div>
-                    </li>
-                    <li class="king2_item">
-                        <p class="k2_k">6</p>
-                        <figure><img src="http://img.super-dreamers.com/xqmall/images/f81de1a3-8094-45d2-9904-453e27071a4c.jpg@75Q" alt="" class="king2_img"></figure>
-                        <div class="king2_c">
-                            <p class="k2_n">哥哥，多爱我一天哥哥</p>
-                            <p class="k2_g">更新到41话</p>
-                            <p class="k2_ty"><span>恋爱</span></p>
+                            <p class="k2_n">{{item.name}}</p>
+                            <p class="k2_g">更新到{{item.set_number}}话</p>
+                            <p class="k2_ty"><span v-for="ctype in item.label" :key="ctype">{{ctype}}</span></p>
                         </div>
                     </li>
                 </ul>
@@ -80,9 +48,10 @@ export default {
   name: 'rankingList',
   data () {
     return {
-        current:0,
+        current:1,
         zgcurrent:0,
-        kindlistData:[]
+        TrikingData:[],
+        restkingData:[],
     }
   },
   mounted(){
@@ -91,16 +60,26 @@ export default {
   },
   methods:{
     axiosDataEvent(){
-        this.$axios.get('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter_page')
+        var _self = this;
+        _self.$store.state.loadShow = true;
+        this.$axios.post(' https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-sort',_self.$qs.stringify({sort:_self.current}))
         .then(function(response){
-            console.log(response.data)
+            _self.TrikingData = response.data.slice(0,3); //前三
+            _self.restkingData = response.data.slice(3); //其余
+            _self.$store.state.loadShow = false;
+            console.log(response)
         })
         .catch(function(error){
             console.log(error)
         })
     },
+    navigateTocartoonEvent(item){
+        this.$router.push({path:'/cartoon/cartoonDetail',query:{cid:item.cid}})
+    },
     switchTabbarEvent(current){
+        console.log(this.current)
         this.current = current;
+        this.axiosDataEvent()
     },
     switchzgcurrentEvent(zgcurrent){
         this.zgcurrent=zgcurrent;
@@ -142,11 +121,16 @@ export default {
     font-weight: 700;
 }
 .king_item .k_n{
+    width:1.9rem;
     margin-top: .21rem;
     line-height: 0.5rem;
     font-weight: 700;
     color: #333;
     font-size: 0.3rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    
 }
 .king_item .k_a{
     line-height: .42rem;
@@ -159,6 +143,7 @@ export default {
     height: 2.62rem;
     margin-top: .25rem;
     vertical-align: middle;
+    object-fit:cover;
 }
 .king_item:nth-child(1){order: 2}
 .king_item:nth-child(2){order: 1}
@@ -193,6 +178,7 @@ export default {
     width: 1.5rem;
     height: 2.1rem;
     vertical-align: middle;
+    object-fit:cover;
 }
 .king2_item .king2_c{
     margin-left:0.3rem;
@@ -292,8 +278,9 @@ export default {
     height: .06rem;
     background-color: #fff;
     position: absolute;
-    left: .66rem;
-    border-radius: 50px;
+    left:50%;
+    transform: translateX(-50%);
+    border-radius: 0.7rem;
     bottom: 0;
     transition: all .3s;
 }
