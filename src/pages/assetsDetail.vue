@@ -13,8 +13,8 @@
 
             <!-- 阅读币 -->
             <div v-show="current==0">
-                <ul class="assets_list" v-if="ydbData.length != 0">
-                    <li class="assets_item" v-for="item in ydbData" :key="item.createtime">
+                <ul class="assets_list" v-if="ydbData != ''">
+                    <li class="assets_item" v-for="item in ydbData">
                         <div class="item_left">
                             <p class="item_p">{{item.remark}}</p>
                             <p class="item_t">{{item.createtime}}</p>
@@ -27,8 +27,8 @@
             
             <!-- 赠币 -->
             <div v-show="current==1">
-                <ul class="assets_list" v-if="zbData.length != 0">
-                    <li class="assets_item" v-for="item in zbData" :key="item.createtime">
+                <ul class="assets_list" v-if="zbData != ''">
+                    <li class="assets_item" v-for="item in zbData">
                         <div class="item_left">
                             <p class="item_p">{{item.remark}}</p>
                             <p class="item_t">{{item.createtime}}</p>
@@ -58,9 +58,9 @@ export default {
     },
     mounted(){
         this.current = this.$route.query.current;
-        this.axiosEvent();
         this.scrollview = this.$refs.scrollview;
         this.scrollview.addEventListener('scroll',this.Pulluploading,false)
+        this.axiosEvent();
     },
     methods:{
         switchTabbarEvent(current){
@@ -79,7 +79,11 @@ export default {
                 _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-coinydRecord',_self.$qs.stringify({page:this.page,uid:this.$store.state.uid}))
                 .then(function(response){
                     if(response.data == ""){
-                        _self.loadShow = true;
+                        if( _self.ydbData == ""){
+                            _self.loadShow = false;
+                        }else{
+                            _self.loadShow = true;
+                        }
                         _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false)
                     }else{
                         _self.ydbData = _self.ydbData.concat(response.data)

@@ -13,6 +13,13 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 Vue.prototype.$axios = axios;
 Vue.prototype.$qs = Qs;
 
+
+// router
+router.beforeEach(function(to,from,next){
+  document.title = to.meta.title; //设置页面title
+  next();
+})
+
 // VueLazyload
 Vue.use(VueLazyload, {
   preLoad: 1.3,
@@ -24,12 +31,23 @@ Vue.use(VueLazyload, {
 // Vuex
 const store = new Vuex.Store({
   state: {
-    loadShow:false,
-    userdata:null,
-    uid:localStorage.getItem('uid') || uuid(8,16),
-    isLogin:localStorage.getItem('uid')?true:false,
+    loadShow:false,  //load加载
+    userinfo:JSON.parse(localStorage.getItem('userinfo')) || {sex:0},  //用户信息
+    uid:localStorage.getItem('uid') || uuid(8,16), 
+    isLogin:localStorage.getItem('uid')?true:false, //是否登录
+    channel:localStorage.getItem('channel') || 0,
   },
   mutations: {
+    // 渠道
+    getchannel(state,channel){
+      state.channel = channel;
+      localStorage.setItem('channel',channel);
+    },
+    getinfo(state,userinfo){
+      state.userinfo = userinfo;
+      localStorage.setItem('userinfo',JSON.stringify(userinfo));
+
+    },
   	login(state,uid){
       state.uid = uid;
       state.isLogin = true;

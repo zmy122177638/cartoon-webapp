@@ -19,7 +19,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.fail_container{height:-webkit-fill-available;}
 .fail_wrap{text-align: center;}
 .fail_img{
     width: 3.93rem;

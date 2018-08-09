@@ -2,7 +2,7 @@
   <div :class="['chapterDetail_container',menu_B?'on':'']" ref="scrollview">
     <!-- header -->
     <div class="chapterDetail_header">
-        <div class="_goback" @click="navitoCatalog()"></div>
+        <div class="_goback" @click="$router.back(-1)"></div>
         <h2 class="chapter_t">第{{menuChapter.sort_number}}话 {{menuChapter.name}}</h2>
         <div class="chapter_S">剩{{$route.query.chaptertotalNum - menuChapter.sort_number}}话</div>
     </div>
@@ -79,9 +79,13 @@ export default {
     }
   },
   mounted(){
+    console.log(this.$store.state.userinfo.sex)
     this.scrollview = this.$refs.scrollview;
     this.chapterDetailDataEvent(0);
     this.getlikeCartoonData();
+  },
+  activated(){
+    
   },
   methods:{
     menuShowEvent(item){
@@ -95,53 +99,53 @@ export default {
         console.log(loadtype)
         _self.loadtype = loadtype; //加载方法
         _self.$store.state.loadShow =true;
-        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter_page',_self.$qs.stringify({cid:_self.$route.query.cid,uid:_self.$store.state.uid,sortNumber:_self.chapterNum}))
-            .then(function(response){
-            //获取章节数据
-            _self.itemData = response.data;
-            console.log(_self.itemData)
-            // 是否付费
-            if(_self.itemData.free_pay){
-                _self.$store.state.loadShow =false;
-                // 是否登录
-                if(_self.$store.state.isLogin){
-                    _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-selectBalance',_self.$qs.stringify({uid:_self.$store.state.uid,cid:_self.$route.query.cid}))
-                    .then(function(response){
-                        if(response.data.power == 2){
-                            console.log('年费会员绿色通道')
-                            _self.loadFunEvent();
-                        }else{
-                            console.log('需扣币'+_self.itemData.coinnum,'阅读币'+_self.ydb,'赠币'+_self.zb)
-                            let adequateMoney; //元宝够不够
-                            _self.ydb = Number(response.data.coinyd);
-                            _self.zb = Number(response.data.coinz);
-                            _self.balance_B = response.data.autopay;
-                            if(_self.zb > _self.itemData.coinnum){
-                                _self.coinnum2 = '扣'+_self.itemData.coinnum + '赠币';
-                            }else if(_self.zb <_self.itemData.coinnum && _self.ydb > _self.itemData.coinnum){
-                                _self.coinnum2 = '扣'+_self.itemData.coinnum + '阅读币';
-                            }else if(_self.zb < _self.itemData.coinnum && _self.ydb < _self.itemData.coinnum){
-                                adequateMoney = true;
-                                _self.coinnum2 = '去充值';
-                            }
-                            // 是否自动订阅
-                            if(response.data.autopay){
-                                if(adequateMoney){
-                                    _self.paypromt_B = !_self.paypromt_B;
-                                }else{
-                                    _self.buyChapterEvent();
-                                }
-                            }else{
-                                _self.paypromt_B = !_self.paypromt_B;
-                            }
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter_page',_self.$qs.stringify({cid:_self.$route.query.cid,uid:_self.$store.state.uid,sortNumber:_self.chapterNum,sex:_self.$store.state.userinfo.sex}))
+        .then(function(response){
+        console.log(response)
+        //获取章节数据
+        _self.itemData = response.data;
+        // 是否付费
+        if(_self.itemData.free_pay){
+            _self.$store.state.loadShow =false;
+            // 是否登录
+            if(_self.$store.state.isLogin){
+                _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-selectBalance',_self.$qs.stringify({uid:_self.$store.state.uid,cid:_self.$route.query.cid}))
+                .then(function(response){
+                    if(response.data.power == 2){
+                        console.log('年费会员绿色通道')
+                        _self.loadFunEvent();
+                    }else{
+                        console.log('需扣币'+_self.itemData.coinnum,'阅读币'+_self.ydb,'赠币'+_self.zb)
+                        let adequateMoney; //元宝够不够
+                        _self.ydb = Number(response.data.coinyd);
+                        _self.zb = Number(response.data.coinz);
+                        _self.balance_B = response.data.autopay;
+                        if(_self.zb > _self.itemData.coinnum){
+                            _self.coinnum2 = '扣'+_self.itemData.coinnum + '赠币';
+                        }else if(_self.zb <_self.itemData.coinnum && _self.ydb > _self.itemData.coinnum){
+                            _self.coinnum2 = '扣'+_self.itemData.coinnum + '阅读币';
+                        }else if(_self.zb < _self.itemData.coinnum && _self.ydb < _self.itemData.coinnum){
+                            adequateMoney = true;
+                            _self.coinnum2 = '去充值';
                         }
-                    })
-                }else{
-                    _self.$router.push('/mypage/login') 
-                }
+                        // 是否自动订阅
+                        if(response.data.autopay){
+                            if(adequateMoney){
+                                _self.paypromt_B = !_self.paypromt_B;
+                            }else{
+                                _self.buyChapterEvent();
+                            }
+                        }else{
+                            _self.paypromt_B = !_self.paypromt_B;
+                        }
+                    }
+                })
             }else{
-                _self.loadFunEvent();
+                _self.$router.push('/mypage/login') 
             }
+        }else{
+            _self.loadFunEvent();
+        }
         })
     },
     // 推荐漫画

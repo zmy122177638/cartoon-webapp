@@ -235,6 +235,7 @@ export default {
         left: 0.24rem;
         top: 0.3rem;
         z-index: 10;
+        -webkit-tap-highlight-color: transparent;
     } 
     .forgetPassword_wrap{
         width: 100%;

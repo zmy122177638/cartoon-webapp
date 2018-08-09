@@ -64,6 +64,7 @@ export default {
     return {
         throttle_B:false,
         scrollview:'',
+        scrollTop:0,
         page:1,
         // banner推荐
         bannerData:[],
@@ -87,6 +88,15 @@ export default {
   },
   components:{
     'list-row':listRow,
+  },
+  activated() {
+    console.log(this.scrollTop)
+    console.log(this.$route)
+    if(this.scrollTop > 0){
+        this.scrollview = this.$refs.scrollview;
+        this.scrollview.scrollTo(0, this.scrollTop);
+        this.scrollview.addEventListener('scroll', this.Pulluploading,false);
+    }
   },
   methods:{
     //   查看更多
@@ -154,10 +164,10 @@ export default {
     // 上拉加载
     Pulluploading(){
         var _self = this;
-        var scrollTop = _self.scrollview.scrollTop;
+        _self.scrollTop = _self.scrollview.scrollTop;
         var scrollHeight = _self.scrollview.scrollHeight;
         var clientHeight = _self.scrollview.clientHeight;
-        if(scrollHeight - clientHeight < scrollTop+1){
+        if(scrollHeight - clientHeight < _self.scrollTop+1){
             if(!_self.throttle_B){
                 _self.ClassloadEvent();
                 _self.$store.state.loadShow =true;

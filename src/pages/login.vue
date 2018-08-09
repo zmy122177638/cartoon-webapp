@@ -15,7 +15,17 @@
             </div>
             <div class="SigninBtn" @click="signInEvent()">登录</div>
             <div class="forgetWrap">
+                <div class="OtherLoginShowBtn" v-if="isWeixin" @click="closeOtherLoginEvent()">其他登陆方式</div>
                 <router-link to="/mypage/forgetPassword" class="forgetBtn">忘记密码？</router-link>
+            </div>
+            <div class="OtherLogin_container" v-if="isOtherLoginpopuShow"  @click.self="closeOtherLoginEvent()">
+                <div class="OtherLogin_wrap">
+                    <p class="login_title">使用第三方登陆</p>
+                    <ul class="login_list">
+                        <li class="login_item wx" @click="wxloginWatchEvent()"></li>
+                    </ul>
+                    <div class="login_close" @click="closeOtherLoginEvent()">使用其他账号登陆</div>
+                </div>
             </div>
             <div class="signupwrap">
                 <router-link to="/mypage/register" class="signupBtn">还没账号？快速注册</router-link>
@@ -31,15 +41,20 @@ export default {
             bgNum:1,
             phone:'',
             password:'',
+            isOtherLoginpopuShow:false,
+            // isOtherLogin:false,
+            isWeixin:false,
         }
     },
     mounted(){
+        this.getTokenEvent();
         this.bgNum = Math.floor(Math.random()*7 +1);
     },
     methods:{
         goback(){
             this.$router.back(-1);
         },
+        
         signInEvent(){
             var _self = this;
             if(this.phone == ""){
@@ -66,7 +81,7 @@ export default {
                         ,skin: 'msg'
                         ,time: 2 //2秒后自动关闭
                         ,end:function(){
-                            _self.$store.commit('login',result.data.uid)
+                            _self.$store.commit('login',result.data.uid);
                             _self.$router.push({path:'/mypage'})
                         }
                     });
@@ -78,6 +93,48 @@ export default {
                     });
                 }
             })
+        },
+        // 第三方登陆登录
+        wxloginWatchEvent(){
+            var _self = this;
+            if (_self.isWeixin) {
+                // _self.isOtherLogin = true;
+                window.location.href = 'https://www.yixueqm.com/cartoon/index.php/Home-Login-wxLogin';
+            }
+        },
+        // 获取token开始登陆
+        getTokenEvent(){
+            var _self = this;
+            let ua = navigator.userAgent.toLowerCase();
+            _self.isWeixin = ua.indexOf('micromessenger') != -1; //是否微信端
+            if(_self.$route.query.uid){
+                layer.open({
+                    content:'授权成功',
+                    skin:'msg',
+                    time:2,
+                    end(){
+                        _self.$store.commit('login',_self.$route.query.uid);
+                        _self.$router.push({path:'/mypage'})
+                    }
+                })
+            }
+            // else{
+            //     alert('还未开始使用微信登陆')
+            //     if(_self.isOtherLogin){
+            //         alert('用户取消授权'+_self.$route.query.uid)
+            //         layer.open({
+            //             content:'你取消了授权',
+            //             skin:'msg',
+            //             time:2,
+            //             yes(){
+            //                 _self.isOtherLogin = false;
+            //             }
+            //         })
+            //     }
+            // }
+        },
+        closeOtherLoginEvent(){
+            this.isOtherLoginpopuShow = !this.isOtherLoginpopuShow;
         }
     },
 }
@@ -121,6 +178,8 @@ export default {
     .login_container{
         width:100%;
         height:100vh;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
         position: relative;
     }
     .login_container::before{
@@ -142,6 +201,7 @@ export default {
         left: 0.24rem;
         top: 0.3rem;
         z-index: 10;
+        -webkit-tap-highlight-color: transparent;
     } 
     .login_wrap{
         width: 100%;
@@ -188,6 +248,9 @@ export default {
         font-size: .26rem;
         width: 100%;
         outline: none;
+        padding-right:0.6rem;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
     }
     input::-webkit-input-placeholder {
         color: #ffffff;
@@ -214,7 +277,12 @@ export default {
         font-size: .28rem;
         -webkit-tap-highlight-color: transparent;
     }
-    .forgetWrap{margin-top:0.5rem;}
+    .forgetWrap{display: flex;width:5.4rem;justify-content: space-around;margin:0.5rem auto 0;}
+    .OtherLoginShowBtn{
+        color:#ffffff;
+        font-size:0.28rem;
+        -webkit-tap-highlight-color: transparent;
+    }
     .signupBtn,.forgetBtn{
         color:#ffffff;
         text-decoration: none;
@@ -223,12 +291,75 @@ export default {
     }
     .signupwrap{
         position: absolute;
+        left:0;
+        bottom:0;
+        right:0;
         width: 80%;
         border-top: .02rem solid #9babb3;
         line-height: 1.26rem;
-        left: 0;
-        right: 0;
-        margin: auto;
-        bottom: 0;
+        margin:auto;
+    }
+    /* 其他登陆 */
+    .OtherLogin_container{
+        position: fixed;
+        width:100%;
+        height:100%;
+        background-color:rgba(0,0,0,.6);
+        left:0;top:0;
+        z-index: 33;
+    }
+    .OtherLogin_wrap{
+        position: absolute;
+        width:80%;
+        top:30%;
+        lefT:50%;
+        margin-left:-40%;
+        background-color:#fff;
+        padding:0.4rem 0;
+        border-radius: 0.1rem;
+        transform: translate3d(0,0,0);
+        animation: oscalc 0.5s ease forwards;
+    }
+    @keyframes oscalc{
+        0%{transform:scale(0.3)}
+        100%{transform:scale(1)}
+    }
+    .login_title{
+        font-size:0.28rem;
+        color:#999999;
+        line-height: 1.7;
+    }
+    .login_title::before,.login_title::after{
+        content:'';
+        display: inline-block;
+        width:20%;
+        height:0.02rem;
+        background-color:#999999;
+        vertical-align: middle;
+    }
+    .login_title::before{margin-right:0.2rem;}
+    .login_title::after{margin-left:0.2rem;}
+    .login_list{
+        list-style: none;
+        margin:0.2rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .login_list .login_item{
+        width:0.96rem;
+        height:0.96rem;
+        -webkit-tap-highlight-color: transparent;
+        
+    }
+    .login_list .login_item:nth-child(1){
+        background:url('../../static/images/wx.png') no-repeat;
+        background-size:100% 100%;
+    }
+    .login_close{
+        color:#333;
+        font-size:0.3rem;
+        margin-top:0.4rem;
+       -webkit-tap-highlight-color: transparent; 
     }
 </style>

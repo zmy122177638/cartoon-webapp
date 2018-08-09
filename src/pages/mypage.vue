@@ -2,9 +2,9 @@
   <div class="mypage_container">
     <div class="mypage_header">
       <div class="top_wrap">
-        <div class="head_img" ><img :src="$store.state.isLogin?userimg:headimg" alt=""></div>
+        <div class="head_img" @click="$store.state.isLogin?$router.push('/mypage/modifyuser'):$router.push('/mypage/login')"><img :src="$store.state.isLogin?userimg:headimg" alt=""></div>
         <div class="usermsg">
-          <p class="username" v-if="$store.state.isLogin"><span>{{username}}</span><span class="man_icon"></span></p>
+          <p class="username" v-if="$store.state.isLogin"><span>{{username}}</span><span :class="[sex?'man_icon':'woman_icon']"></span></p>
           <p class="loginpromt" v-else>你还未登录哦~</p>
           <router-link to="/mypage/login" class="SigninBtn" tag="div" v-if="!$store.state.isLogin" >快速登录</router-link>
           <!-- <p class="uidname">(ID:{{uid}})</p> -->
@@ -27,15 +27,15 @@
       <router-link :to="$store.state.isLogin?'/mypage/subRecord':'/mypage/login'" tag="li" class="page_item">
         <p>我的订阅记录</p><p>订阅的漫画都在这里哦</p>
       </router-link>
-      <router-link to="" tag="li" class="page_item">
-        <p>每日更新(待开发)</p>
-      </router-link>
-      <router-link to="" tag="li" class="page_item">
+      <!-- <router-link to="/mypage/dayUpdate" tag="li" class="page_item">
+        <p>每日更新</p>
+      </router-link> -->
+      <!-- <router-link to="$store.state.isLogin?'/mypage/mynews':'/mypage/login'" tag="li" class="page_item">
         <p>我的消息(待开发)</p>
       </router-link>
       <router-link to="" tag="li" class="page_item">
         <p>兑换码(待开发)</p>
-      </router-link>
+      </router-link> -->
       <li class="page_item" v-if="$store.state.isLogin" @click="SignoutEvent()">
         <p>退出</p>
       </li>
@@ -62,8 +62,7 @@
 </template>
 
 <script>
-// @click="$store.state.isLogin?$router.push('/mypage/modifyuser'):$router.push('/mypage/login')"  修改
-// $store.state.isLogin?'/mypage/mynews':'/mypage/login'  消息
+
 export default {
   name: 'mypage',
   data () {
@@ -72,6 +71,7 @@ export default {
       Coindonation:'',
       Readingmoney:'',
       uid:'',
+      sex:1,
       headimg:'static/images/default_head_img.png',
       userimg:'',
       issigninShow:false, 
@@ -79,45 +79,36 @@ export default {
     }
   },
   mounted(){
-    this.wxloginWatchEvent();
+    this.getuserData();
   },
   methods:{
-    // 登录
-    wxloginWatchEvent(){
-      var _self = this;
-      var ua = navigator.userAgent.toLowerCase();
-      var isWeixin = ua.indexOf('micromessenger') != -1;
-      if(this.$store.state.isLogin){
-        this.getuserData();
-      }else{
-        if (isWeixin) {
-          console.log('是微信')
-          if(_self.$route.query.uid){
-            console.log(_self.$route.query.uid)
-            _self.$store.commit('login',_self.$route.query.uid)
-            this.getuserData();
-          }else{
-            window.location.href =  'https://www.yixueqm.com/cartoon/index.php/Home-Login-wxLogin';
-          }
-        }else{
-          console.log('不是微信')
-        }
-      }
-    },
     // 获取用户信息
     getuserData(){
       var _self = this;
-        this.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-index',this.$qs.stringify({uid:this.$store.state.uid}))
-        .then(function(result){
-          var userData = result.data.userData;
-          _self.signinData = result.data.signData;
-          _self.Coindonation = userData.coin_z;
-          _self.Readingmoney = userData.coin_yd;
-          _self.username = userData.nickname;
-          _self.uid = userData.uid;
-          _self.userimg = userData.head_img;
-          console.log(result.data)
-        })
+        _self.$store.state.loadShow = true;
+        if(_self.$store.state.isLogin){
+          _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-index',_self.$qs.stringify({uid:_self.$store.state.uid}))
+          .then(function(result){
+            var userData = result.data.userData;
+            _self.$store.commit('getinfo',userData);
+            _self.signinData = result.data.signData;
+            _self.Coindonation = userData.coin_z;
+            _self.Readingmoney = userData.coin_yd;
+            _self.username = userData.nickname;
+            _self.uid = userData.uid;
+            _self.sex = Boolean(userData.sex);
+            _self.userimg = userData.head_img;
+            console.log(result.data)
+            _self.$store.state.loadShow = false;
+          })
+          .catch(function(error){
+            _self.$store.state.loadShow = false;
+            alert('登录失败')
+          })
+        }else{
+          _self.$store.state.loadShow = false;
+        }
+        
     },
     // 退出登录
     SignoutEvent(){
@@ -157,9 +148,9 @@ export default {
       }else{
         this.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-signin',this.$qs.stringify({uid:this.$store.state.uid,coin:coin_z}))
         .then(function(response){
-          _self.getuserData();
-          _self.issigninShow = !_self.issigninShow;
           if(response.data){
+            _self.getuserData();
+            _self.issigninShow = !_self.issigninShow;
             layer.open({
               content: '签到成功'
               ,style:'max-width:70%;'
@@ -180,8 +171,7 @@ export default {
 <style scoped>
   .mypage_container{
     background-color:#f2f2f2;
-    height:-webkit-fill-available;
-    overflow: auto;
+    height:calc(100vh - 1rem);
     -webkit-overflow-scrolling: touch;
     box-sizing: border-box;
   }
@@ -206,7 +196,7 @@ export default {
     display: inline-block;
     -webkit-tap-highlight-color: transparent;
   }
-  .head_img img{width:100%;height:100%;vertical-align: middle;border-radius: 0.7rem;}
+  .head_img img{width:100%;height:100%;vertical-align: middle;border-radius: 0.7rem;object-fit: cover;}
   .usermsg{
     display: flex;
     flex-direction: column;
@@ -346,7 +336,7 @@ export default {
     background-image: url('../../static/images/user-index1.png'),url('../../static/images/jiantou.png');
     background-size: .4rem .3rem,.13rem .26rem;
   }
-  .page_wrap .page_item:nth-child(7){
+  .page_wrap .page_item:nth-last-child(1){
     background-image: url('../../static/images/icon22.png'),url('../../static/images/jiantou.png');
     background-size: .38rem,.13rem .26rem;
     margin-top:0.2rem;

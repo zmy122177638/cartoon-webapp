@@ -101,6 +101,7 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom:0.4rem;
+  -webkit-tap-highlight-color: transparent;
 }
 .moreCartoon_item:nth-last-child(1){margin-bottom: 0;}
 .cartoon_img{

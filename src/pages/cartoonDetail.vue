@@ -1,5 +1,5 @@
 <template>
-  <div class="cartoonDetail_container">
+  <div class="cartoonDetail_container" ref="scrollview">
     <div class="cartoonDetail_wrap">
       <div class="cartoonDetail_header">
         <img :src="CartoonData.img_url" class="cartoonDetail_banner" alt="">
@@ -81,6 +81,7 @@ export default {
       select:0, //默认详情
       pageNum:1,
       sort:0,   //排序
+      scrollview:'',
       throttle_B:false,
       loading_B:false,
       paypromt_B:false,
@@ -101,9 +102,20 @@ export default {
   },
   mounted(){
     this.select = this.$route.query.Catalog || this.select;
-    window.addEventListener('scroll',this.Pulluploading,false);
+    this.scrollview = this.$refs.scrollview;
+    this.scrollview.addEventListener('scroll',this.Pulluploading,false);
     this.cartoonDataEvent();
     this.charpteDatainitEvent();
+  },
+  activated(){
+    this.pageNum = 1;
+    this.select = this.$route.query.Catalog || 0;
+    this.scrollview.addEventListener('scroll',this.Pulluploading,false);
+    this.cartoonDataEvent();
+    this.charpteDatainitEvent();
+  },
+  deactivated(){
+
   },
   methods:{
     // 漫画数据
@@ -137,7 +149,7 @@ export default {
           _self.chapterData = _self.chapterData.concat(response.data);
           _self.$store.state.loadShow =false;
         }else{
-          window.removeEventListener('scroll',_self.Pulluploading,false);
+          _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false);
           _self.loading_B = true;
           _self.$store.state.loadShow =false;
         }
@@ -148,6 +160,9 @@ export default {
     selectTabbarEvent(select){
       var _self = this;
       _self.select = select;
+      _self.pageNum = 1;
+      _self.loading_B = false;
+      this.scrollview.addEventListener('scroll',this.Pulluploading,false);
       _self.charpteDatainitEvent();
     },
      // 排序
@@ -156,7 +171,7 @@ export default {
       _self.sort == 1?_self.sort=0:_self.sort=1;
       _self.pageNum = 1;
       _self.loading_B = false;
-      window.addEventListener('scroll',this.Pulluploading,false);
+      this.scrollview.addEventListener('scroll',this.Pulluploading,false);
       _self.charpteDatainitEvent()
     },
     // 返回上个路由
@@ -166,17 +181,17 @@ export default {
     // 上拉加载
     Pulluploading(){
       var _self = this;
-      var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;
-      var scrollHeight = document.querySelector('.cartoonDetail_container').clientHeight;
-      var screenHeight = window.screen.height||window.innerHeight;
-      if(scrollHeight - screenHeight < scrollTop + 50 && _self.select==1){
+      var scrollTop = _self.scrollview.scrollTop;
+      var scrollHeight = _self.scrollview.scrollHeight;
+      var clientHeight = _self.scrollview.clientHeight;
+      if(scrollHeight - clientHeight < scrollTop+1 && _self.select){
         if(!_self.throttle_B){
-            _self.pageNum++;
-            _self.charpteDataEvent();
             _self.$store.state.loadShow =true;
             setTimeout(function(){
+                _self.pageNum++;
+                _self.charpteDataEvent();
                 _self.throttle_B = false;
-            },800)
+            },300)
             _self.throttle_B = true;
         }else{
             return;
@@ -360,123 +375,19 @@ export default {
     },
   },
   destroyed(){
-    window.removeEventListener('scroll',this.Pulluploading,false);
+    this.scrollview.removeEventListener('scroll',this.Pulluploading,false);
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  /* paypromt */
-  .paypromt_container{
-    
-  }
-  .paypromt_container.on .paypromt_wrap{bottom:0;}
-  .paypromt_container.on .paypromt_bg{opacity: 1;display: block;}
-  .paypromt_bg{
-    width:100%;
-    height:100%;
-    background-color:rgba(0, 0, 0, 0.7);
-    position: fixed;
-    lefT:0;
-    opacity:0; 
-    top:0;
-    z-index:99;
-    transition: all 0.3s;
-    display: none;
-  }
-  .paypromt_wrap{
-    position: fixed;
-    z-index: 99;
-    bottom:-100%;
-    left:0;
-    width:100%;
-    background-color:#ffffff;
-    text-align: center;
-    transition: all 0.3s;
-  }
-  .wrap_bg{
-    width: 2.13rem;
-    position: absolute;
-    left: 0.35rem;
-    top: -0.84rem;
-    z-index: -1;
-  }
-  .paypromt_t{
-    line-height: 0.76rem;
-    font-size: 0.34rem;
-    color: #333;
-    padding-bottom: 0.26rem;
-    position: relative;
-    text-align: center;
-  }
-  .paypromt_t::before{
-    content: "";
-    width: 100%;
-    height: 0.32rem;
-    background: url('../../static/images/tc_img_02.png') 50% no-repeat;
-    background-size: 100%;
-    position: absolute;
-    left: 0;
-    top: -0.26rem;
-    z-index: -2;
-  }
-  .close{
-    position: absolute;
-    right: 0.28rem;
-    top: 0.17rem;
-    width: 0.46rem;
-    height: 0.46rem;
-    background: url('../../static/images/del_icon.png') 50% no-repeat;
-    background-size: 0.46rem;
-  }
-  .payitems{
-    width:80%;
-    line-height: .85rem;
-    background-color:#EEEEEE;
-    margin: 0 auto;
-    border-radius: 0.43rem;
-    font-size:0.28rem;
-    color:#333333;
-    text-align: center;
-  }
-  .payitems span{color: #fd7d49;font-size: .31rem;}
-  .assets{
-    display: flex;
-    justify-content: center;
-    font-size:0.28rem;
-    line-height: 0.84rem;
-  }
-  .assets p{margin-right:0.5rem;}
-  .assets p:nth-last-child(1){margin-right:0;}
-  .assets p:nth-child(1){color:#909090}
-  .ec{color: #fd7d49;}
-  .balance_s{
-    line-height: 0.36rem;
-    padding-left: 0.5rem;
-    background: url('../../static/images/icon8.png') 0 no-repeat;
-    color: #333;
-    font-size: 0.22rem;
-    background-size: 0.36rem;
-    display: inline-block;
-    margin: 0 auto;
-  }
-  .balance_s.on{
-    background-image: url('../../static/images/zf_icon.png');
-  }
-  .paypromt_btn{
-    margin-top: 0.44rem;
-    line-height: 1rem;
-    background-color: #fd7d49;
-    text-align: center;
-    color: #fff;
-    font-size: 0.32rem;
-  }
   /* 详情页 */
   .cartoonDetail_container{
-    min-height:100vh;
+    height:100vh;
     width:100%;
-    height:100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
     background-color:#F2F5F5;
   }
   /* 头部 */
@@ -780,6 +691,111 @@ export default {
   .chapter_msg .chapter_ft span:nth-child(2).on::before{
     background:url('../../static/images/zan4.png') no-repeat;
     background-size:100% 100%;
+  }
+  /* paypromt */
+  .paypromt_container{}
+  .paypromt_container.on .paypromt_wrap{bottom:0;}
+  .paypromt_container.on .paypromt_bg{opacity: 1;display: block;}
+  .paypromt_bg{
+    width:100%;
+    height:100%;
+    background-color:rgba(0, 0, 0, 0.7);
+    position: fixed;
+    lefT:0;
+    opacity:0; 
+    top:0;
+    z-index:99;
+    transition: all 0.3s;
+    display: none;
+  }
+  .paypromt_wrap{
+    position: fixed;
+    z-index: 99;
+    bottom:-100%;
+    left:0;
+    width:100%;
+    background-color:#ffffff;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .wrap_bg{
+    width: 2.13rem;
+    position: absolute;
+    left: 0.35rem;
+    top: -0.84rem;
+    z-index: -1;
+  }
+  .paypromt_t{
+    line-height: 0.76rem;
+    font-size: 0.34rem;
+    color: #333;
+    padding-bottom: 0.26rem;
+    position: relative;
+    text-align: center;
+  }
+  .paypromt_t::before{
+    content: "";
+    width: 100%;
+    height: 0.32rem;
+    background: url('../../static/images/tc_img_02.png') 50% no-repeat;
+    background-size: 100%;
+    position: absolute;
+    left: 0;
+    top: -0.26rem;
+    z-index: -2;
+  }
+  .close{
+    position: absolute;
+    right: 0.28rem;
+    top: 0.17rem;
+    width: 0.46rem;
+    height: 0.46rem;
+    background: url('../../static/images/del_icon.png') 50% no-repeat;
+    background-size: 0.46rem;
+  }
+  .payitems{
+    width:80%;
+    line-height: .85rem;
+    background-color:#EEEEEE;
+    margin: 0 auto;
+    border-radius: 0.43rem;
+    font-size:0.28rem;
+    color:#333333;
+    text-align: center;
+  }
+  .payitems span{color: #fd7d49;font-size: .31rem;}
+  .assets{
+    display: flex;
+    justify-content: center;
+    font-size:0.28rem;
+    line-height: 0.84rem;
+  }
+  .assets p{margin-right:0.5rem;}
+  .assets p:nth-last-child(1){margin-right:0;}
+  .assets p:nth-child(1){color:#909090}
+  .ec{color: #fd7d49;}
+  .balance_s{
+    line-height: 0.36rem;
+    padding-left: 0.5rem;
+    background: url('../../static/images/icon8.png') 0 no-repeat;
+    color: #333;
+    font-size: 0.22rem;
+    background-size: 0.36rem;
+    display: inline-block;
+    margin: 0 auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .balance_s.on{
+    background-image: url('../../static/images/zf_icon.png');
+  }
+  .paypromt_btn{
+    margin-top: 0.44rem;
+    line-height: 1rem;
+    background-color: #fd7d49;
+    text-align: center;
+    color: #fff;
+    font-size: 0.32rem;
+    -webkit-tap-highlight-color: transparent;
   }
   /* 加载 */
   .chapter_load_wrap{

@@ -4,7 +4,7 @@
             <ul class="header_wrap">
                 <router-link to="/cartoon" tag="li" class="nav_item">漫画</router-link>
                 <router-link to="/home" tag="li" class="nav_item">首页</router-link>
-                <router-link to="/mypage/rechargeRecord" tag="li" class="nav_item">充值记录(待开发)</router-link>
+                <router-link to="/mypage/rechargeRecord" tag="li" class="nav_item">充值记录</router-link>
             </ul>
         </div>
         <div class="recharge_content">
@@ -13,7 +13,7 @@
                 <li class="recharge_module_item on" v-for="item in priceData" :key="item.price" @click="startPayEvent(item.price,item.coin_yd)">
                     <h3 class="ydb">{{item.coin_yd}}币</h3>
                     <p class="rmb">￥{{item.price}}元</p>
-                    <span class="sign">送{{item.coin_z}}</span>
+                    <span class="sign" v-if="item.coin_z">送{{item.coin_z}}</span>
                 </li>
             </ul>
             <!-- 年费vip -->
@@ -47,12 +47,13 @@ export default {
         }
     },
     mounted(){
+
         this.getpriceData();
     },
     methods:{
         getpriceData(){
             var _self = this;
-            _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-payRecharge')
+            _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-payRecharge',this.$qs.stringify({uid:this.$store.state.uid}))
             .then(function(response){
                 _self.priceData = response.data;
                 console.log(response)
@@ -60,13 +61,12 @@ export default {
         },
         startPayEvent(price,ydb){
             var _self = this;
-            console.log(price,ydb)
-            window.location.href = `https://www.yixueqm.com/cartoon/index.php/Home-Index-PlaceOrder?uid=${_self.$store.state.uid}&&price=${price}&&coin=${ydb}`
+            window.location.href = `https://www.yixueqm.com/cartoon/index.php/Home-Index-PlaceOrder?uid=${_self.$store.state.uid}&&price=${price}&&coin=${ydb}&&channel=${_self.$store.state.channel}`
         }
     }
 }
 </script>
-<style scoped>
+<style scoped>  
     .recharge_container{
 
     }
@@ -102,9 +102,6 @@ export default {
     .recharge_content{
         padding-top:0.8rem;
         box-sizing: border-box;
-        height:-webkit-fill-available;
-        -webkit-overflow-scrolling: touch;
-        overflow: auto;
     }
     .recharge_t{
         line-height: .68rem;

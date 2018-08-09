@@ -9,7 +9,7 @@
         <div :class="['setBtn',edit_B?'on':'']" @click="editEvent()" v-show="editBtnShow">编辑</div>
       </h1>
     </div>
-    <div class="bookshelf_wrap">
+    <div class="bookshelf_wrap" ref="scrollview">
       <!-- 历史 -->
       <div class=“history_container” v-show="current==1">
         <ul class="history_wrap" v-if="historyData.length != 0">
@@ -26,6 +26,7 @@
           </li>
         </ul>
         <fail-view v-else></fail-view>
+        <p class="load_promt" v-if="loadShow1 && historyData!=''">没有更多了~</p>
       </div>
       <!-- 收藏 -->
       <div class="collec_container" v-show="current==0">
@@ -42,7 +43,9 @@
           </li>
         </ul>
         <fail-view v-else></fail-view>
+        <p class="load_promt" v-if="loadShow0 && collecData!=''">没有更多了~</p>
       </div>
+      
       <!-- 猜你喜欢 -->
       <!-- <div class="like_container">
         <div class="like_title"><p class="l_t">猜你喜欢</p></div>
@@ -71,6 +74,11 @@ export default {
   data () {
     return {
         current:1,
+        throttle_B:false,
+        loadShow0:false,
+        loadShow1:false,
+        page:1,
+        scrollview:'',
         edit_B:false,
         startAnimate:false,
         onceFN:false,
@@ -83,7 +91,9 @@ export default {
     'fail-view':fail
   },
   mounted(){
-    this.axjaEvent(this.current)
+    this.scrollview = this.$refs.scrollview;
+    this.scrollview.addEventListener('scroll',this.Pulluploading,false)
+    this.axjaEvent(this.current);
   },
   computed:{
     historyAllCheck(current){
@@ -104,12 +114,37 @@ export default {
     }
   },
   methods:{
+    // 上拉加载
+    Pulluploading(){
+        var _self = this;
+        var scrollTop = _self.scrollview.scrollTop;
+        var scrollHeight = _self.scrollview.scrollHeight;
+        var clientHeight = _self.scrollview.clientHeight;
+        if(scrollHeight - clientHeight < scrollTop+1){
+            if(!_self.throttle_B){
+                _self.$store.state.loadShow =true;
+                setTimeout(function(){
+                    _self.page++;
+                    _self.axjaEvent(_self.current);
+                    _self.throttle_B = false;
+                },300)
+                _self.throttle_B = true;
+            }else{
+                return;
+            }
+        }
+    },
     switchTabbarEvent(current){
       if(this.$store.state.isLogin){
         this.current = current;
         this.edit_B = false;
-        this.historyData.forEach(function(item){item.ischeck = false})
-        this.collecData.forEach(function(item){item.ischeck = false})
+        this.loadShow0 = false;
+        this.loadShow1 = false;
+        this.historyData = [];
+        this.collecData = [];
+        this.startAnimate = false;
+        this.scrollview.addEventListener('scroll',this.Pulluploading,false)
+        this.page = 1;
         this.axjaEvent(this.current)
       }else{
         this.$router.push('/mypage/login') 
@@ -120,21 +155,30 @@ export default {
       var _self = this;
       _self.$store.state.loadShow = true;
       if(current == 1){
-        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-browse',_self.$qs.stringify({uid:_self.$store.state.uid}))
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-browse',_self.$qs.stringify({page:_self.page,uid:_self.$store.state.uid}))
         .then(function(response){
-          response.data.forEach(function(item){item.ischeck = false})
-          _self.historyData = response.data;
+          if(response.data == ""){
+            _self.loadShow1 = true;
+            _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false)
+          }else{
+            response.data.forEach(function(item){item.ischeck = false})
+            _self.historyData = _self.historyData.concat(response.data);
+          }
+          
           _self.$store.state.loadShow = false;
-          console.log(_self.historyData)
         })
       }
       if(current == 0){
-        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-collection',_self.$qs.stringify({uid:_self.$store.state.uid}))
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-collection',_self.$qs.stringify({page:_self.page,uid:_self.$store.state.uid}))
         .then(function(response){
-          response.data.forEach(function(item){item.ischeck = false})
-          _self.collecData = response.data;
+          if(response.data == ""){
+            _self.loadShow0 = true;
+            _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false)
+          }else{
+            response.data.forEach(function(item){item.ischeck = false})
+            _self.collecData = _self.collecData.concat(response.data);
+          }
           _self.$store.state.loadShow = false;
-          console.log(_self.collecData)
         })
       }
       // if(!_self.onceFN){
@@ -207,6 +251,8 @@ export default {
                   ,skin: 'msg'
                   ,time: 2 //2秒后自动关闭
                   ,success:function(){
+                    _self.historyData = [];
+                    _self.page = 1;
                     _self.axjaEvent(_self.current)
                     _self.edit_B = !_self.edit_B;
                   }
@@ -240,6 +286,8 @@ export default {
                   ,skin: 'msg'
                   ,time: 2 //2秒后自动关闭
                   ,success:function(){
+                    _self.collecData = [];
+                    _self.page = 1;
                     _self.axjaEvent(_self.current)
                     _self.edit_B = !_self.edit_B;
                   }
@@ -251,6 +299,7 @@ export default {
         }
       }
     },
+
     // 跳转
     navigateTodetailEvent(item){
       if(item.sort_number == 0){
@@ -259,6 +308,9 @@ export default {
         this.$router.push({path:'/chapter/chapterDetail',query:{cid:item.cid,sortNumber:item.sort_number,chaptertotalNum:item.set_number}})
       } 
     }
+  },
+  destroyed(){
+    this.scrollview.addEventListener('scroll',this.Pulluploading,false)
   }
 }
 </script>
@@ -266,19 +318,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
   .bookshelf_container{
+    height:100%;
     background-color:#f2f2f2;
-    height:-webkit-fill-available;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    box-sizing: border-box;
   }
   /* tou */
   .bookshelf_header{
-    position: fixed;
     width:100%;
-    top:0;
-    left:0;
-    z-index: 3;
   }
   .bookshelf_t{
     height:0.8rem;
@@ -349,7 +394,12 @@ export default {
     border-radius: 0.7rem;
   }
   /* content */
-  .bookshelf_wrap{padding-top:0.8rem;background-color:#fff;}
+  .bookshelf_wrap{
+    height:calc(100vh - 1.8rem);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    background-color:#fff;
+  }
   .history_wrap{
     padding:0.4rem 0.24rem;
     list-style: none;
@@ -615,5 +665,11 @@ export default {
     background-size:100% 100%;
     vertical-align:sub;
     margin-right:0.2rem;
+  }
+  .load_promt{
+      line-height: .6rem;
+      font-size: .28rem;
+      color: #909090;
+      text-align: center;
   }
 </style>

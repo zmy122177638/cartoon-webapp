@@ -42,6 +42,8 @@ export default {
         border-top:0.02rem solid #e0e0e0;
         background-color:#Ffffff;
         z-index:55;
+        height:1rem;
+        box-sizing: border-box;
     }
     .tabbar_wrap{
         display: flex;

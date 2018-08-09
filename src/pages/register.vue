@@ -141,7 +141,7 @@ export default {
                 return;
             }
             if(this.regNum == this.reg){
-                this.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Login-registerSubmission',this.$qs.stringify({user:this.phone,password:this.password,sex:this.sex}))
+                this.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Login-registerSubmission',this.$qs.stringify({user:this.phone,password:this.password,sex:this.sex,channel:this.$store.state.channel}))
                 .then(function(result){
                     if(result.data){
                         _self.phone = '';
@@ -258,6 +258,7 @@ export default {
         left: 0.24rem;
         top: 0.3rem;
         z-index: 10;
+        -webkit-tap-highlight-color: transparent;
     } 
     .register_wrap{
         width: 100%;

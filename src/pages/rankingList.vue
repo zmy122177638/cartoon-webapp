@@ -20,7 +20,7 @@
                 <div class="king_item" v-for="(item,index) in TrikingData" :key="item.cid" @click="navigateTocartoonEvent(item)">
                     <p class="k_t">TOP</p>
                     <p class="k_k">{{index+1}}</p>
-                    <figure><img :src="item.img_url" alt=""></figure>
+                    <figure><img src="" v-lazy="item.img_url" alt=""></figure>
                     <p class="k_n">{{item.name}}</p>
                     <p class="k_a">{{item.author}}</p>
                 </div>
@@ -29,7 +29,7 @@
                 <ul class="king2_wrap">
                     <li class="king2_item" v-for="(item,index) in restkingData" :key="item.cid" @click="navigateTocartoonEvent(item)">
                         <p class="k2_k">{{index+4}}</p>
-                        <figure><img :src="item.img_url"></figure>
+                        <figure><img src="" v-lazy="item.img_url"></figure>
                         <div class="king2_c">
                             <p class="k2_n">{{item.name}}</p>
                             <p class="k2_g">更新到{{item.set_number}}话</p>
@@ -102,6 +102,7 @@ export default {
     display: flex;
     flex-direction: column;
     text-align: center;
+    -webkit-tap-highlight-color: transparent;
 }
 .king_item .k_t{
     font-weight: 700;
@@ -165,6 +166,7 @@ export default {
     align-items: center;
     margin-top:0.4rem;
     padding:0 0.24rem;
+    -webkit-tap-highlight-color: transparent;
 }
 .king2_item .k2_k{
     line-height: 2.1rem;
@@ -271,6 +273,7 @@ export default {
     line-height: 0.8rem;
     text-align: center;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
 }
 .tabbar.on::after{
     content: '';

@@ -2,7 +2,7 @@
     <div class="subRecord_container" ref="scrollview">
         <div class="subRecord_wrap" v-if="payAutoData.length != 0">
             <ul class="pay_list" >
-                <li class="pay_item" v-for="item in payAutoData" :key="item.createtime">
+                <li class="pay_item" v-for="item in payAutoData" :key="item.chapterid">
                     <figure><img src="" v-lazy="item.img_url" alt="" class="pay_item_img"></figure>
                     <div class="pay_item_c">
                         <h3>{{item.name}}</h3>
