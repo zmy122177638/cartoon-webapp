@@ -11,7 +11,7 @@
     </div>
     <div class="bookshelf_wrap" ref="scrollview">
       <!-- 历史 -->
-      <div class=“history_container” v-show="current==1">
+      <div class="history_container" v-show="current==1">
         <ul class="history_wrap" v-if="historyData.length != 0">
           <li class="history_item" v-for="item in historyData" :key="item.cid" @click="edit_B?editListEvent(item):navigateTodetailEvent(item)">
             <span :class="['checkBox',item.ischeck?'on':'']"></span>
@@ -396,7 +396,7 @@ export default {
   /* content */
   .bookshelf_wrap{
     height:calc(100vh - 1.8rem);
-    overflow: auto;
+    overflow: scroll;
     -webkit-overflow-scrolling: touch;
     background-color:#fff;
   }

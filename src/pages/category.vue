@@ -12,7 +12,7 @@
           <li :class="['category_item',type==3?'on':'']" @click="selectTypeEvent(1,3,serialEnd,freePay,newHot)">伦理</li>
           <li :class="['category_item',type==4?'on':'']" @click="selectTypeEvent(1,4,serialEnd,freePay,newHot)">异能</li>
           <li :class="['category_item',type==5?'on':'']" @click="selectTypeEvent(1,5,serialEnd,freePay,newHot)">搞笑</li>
-          <li :class="['category_item',type==6?'on':'']" @click="selectTypeEvent(1,6,serialEnd,freePay,newHot)">真人</li>
+          <li :class="['category_item',type==6?'on':'']" @click="selectTypeEvent(1,6,serialEnd,freePay,newHot)">悬疑</li>
           <li :class="['category_item',type==7?'on':'']" @click="selectTypeEvent(1,7,serialEnd,freePay,newHot)">其他</li>
           <li :class="['more_category',moreWrapShow?'on':'']" @click="moreSelectEvent()">筛选</li>
         </ul>
@@ -87,7 +87,7 @@ export default {
       _self.$store.state.loadShow =true;
       _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-select_type',_self.$qs.stringify({page:_self.page,type:_self.type,serialEnd:_self.serialEnd,freePay:_self.freePay,newHot:_self.newHot}))
       .then(function(response){
-        console.log(response)
+        // console.log(response)
         if(response.data == ""){
           _self.loadEnd = true;
           _self.scrollview.removeEventListener('scroll',_self.Pulluploading,false);
@@ -158,8 +158,6 @@ export default {
 <style scoped>
   .category_container{
     height:-webkit-fill-available;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
     box-sizing: border-box;
     padding:0.8rem 0 0;
   }
@@ -193,8 +191,9 @@ export default {
     -webkit-tap-highlight-color: transparent;
   }
   .category_wrap{
-    overflow: auto;
-    height: inherit;
+    overflow: scroll;
+    height:inherit;
+    height: -webkit-fill-available;
     -webkit-overflow-scrolling: touch;
   }
   /* 选择 */

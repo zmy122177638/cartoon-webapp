@@ -6,7 +6,7 @@
         <div class="usermsg">
           <p class="username" v-if="$store.state.isLogin"><span>{{username}}</span><span :class="[sex?'man_icon':'woman_icon']"></span></p>
           <p class="loginpromt" v-else>你还未登录哦~</p>
-          <router-link to="/mypage/login" class="SigninBtn" tag="div" v-if="!$store.state.isLogin" >快速登录</router-link>
+          <div class="SigninBtn" @click="loginEvent()" v-if="!$store.state.isLogin" >快速登录</div>
           <!-- <p class="uidname">(ID:{{uid}})</p> -->
         </div>
         <div class="SignBtn" v-if="$store.state.isLogin" @click="signinEvent()">{{signinData.today?'已签到':'签到'}}</div>
@@ -79,7 +79,16 @@ export default {
     }
   },
   mounted(){
-    this.getuserData();
+    let _self = this;
+    if(localStorage.getItem('olduid')){
+        _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Login-loginSelect',_self.$qs.stringify({user:localStorage.getItem('olduid'),password:123456}))
+      .then(function(result){
+        _self.$store.commit('login',result.data.uid);
+        _self.getuserData();
+      })
+    }else{
+      this.getuserData();
+    }
   },
   methods:{
     // 获取用户信息
@@ -98,17 +107,26 @@ export default {
             _self.uid = userData.uid;
             _self.sex = Boolean(userData.sex);
             _self.userimg = userData.head_img;
-            console.log(result.data)
             _self.$store.state.loadShow = false;
           })
           .catch(function(error){
             _self.$store.state.loadShow = false;
-            alert('登录失败')
+            layer.open({
+              content:'授权身份过期,请重新登录',
+              skin:'msg',
+              time:1,
+              end(){                                                                                                                                                                                                                                                                                                                                                                                                          
+                _self.$store.commit('Signout');
+                _self.$router.push({path:'/mypage/login'})
+              }
+            })
           })
         }else{
           _self.$store.state.loadShow = false;
         }
-        
+    },
+    updated() {
+      this.getuserData();
     },
     // 退出登录
     SignoutEvent(){
@@ -122,6 +140,19 @@ export default {
           layer.close(index);
         }
       });
+    },
+    // 快速登录
+    loginEvent(){
+      let _self = this;
+      if(localStorage.getItem('olduid')){
+         _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Login-loginSelect',_self.$qs.stringify({user:localStorage.getItem('olduid'),password:123456}))
+        .then(function(result){
+          _self.$store.commit('login',result.data.uid);
+          _self.getuserData();
+        })
+      }else{
+        this.$router.push({path:"/mypage/login" })
+      }
     },
     // 签到弹窗
     signinEvent(){
@@ -142,6 +173,7 @@ export default {
           ,style:'max-width:70%;'
           ,btn: '确定'
           ,yes: function(index){
+            
             layer.close(index);
           }
         });
@@ -173,6 +205,7 @@ export default {
     background-color:#f2f2f2;
     height:calc(100vh - 1rem);
     -webkit-overflow-scrolling: touch;
+    overflow: scroll;
     box-sizing: border-box;
   }
   .mypage_header{

@@ -82,7 +82,7 @@ export default {
     .subRecord_container{
         -webkit-overflow-scrolling: touch;
         height:100vh;
-        overflow:auto;
+        overflow:scroll;
     }
     .pay_list{
         padding:0.4rem 0;

@@ -178,8 +178,6 @@ export default {
     .login_container{
         width:100%;
         height:100vh;
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
         position: relative;
     }
     .login_container::before{

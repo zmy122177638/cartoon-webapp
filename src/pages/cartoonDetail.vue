@@ -110,6 +110,7 @@ export default {
   activated(){
     this.pageNum = 1;
     this.select = this.$route.query.Catalog || 0;
+    this.scrollview = this.$refs.scrollview;
     this.scrollview.addEventListener('scroll',this.Pulluploading,false);
     this.cartoonDataEvent();
     this.charpteDatainitEvent();
@@ -124,7 +125,7 @@ export default {
       _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-index',_self.$qs.stringify({cid:_self.$route.query.cid,uid:_self.$store.state.uid}))
       .then(function(response){
         _self.CartoonData =response.data;
-        console.log(response)
+        // console.log(response)
       })
     },
     // 章节初始数据
@@ -386,7 +387,7 @@ export default {
   .cartoonDetail_container{
     height:100vh;
     width:100%;
-    overflow: auto;
+    overflow: scroll;
     -webkit-overflow-scrolling: touch;
     background-color:#F2F5F5;
   }

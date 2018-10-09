@@ -111,7 +111,7 @@ export default {
     }
     .rechargeRecord_wrap{
         height:calc(100vh - 0.88rem);
-        overflow: auto;
+        overflow: scroll;
         -webkit-overflow-scrolling:touch;
     }
     .assets_list{padding:0 0.24rem;list-style: none;}

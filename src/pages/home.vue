@@ -42,7 +42,7 @@
         <list-row :row-obj="NewWorksData" :row="2" :title="'新作推荐'" v-on:setcartoonclass="setcartoonclass(0)"></list-row>
         <list-row :row-obj="HotWorksData" :row="3" :title="'热门佳作'" v-on:setcartoonclass="setcartoonclass(1)"></list-row>
         <list-row :row-obj="essenceWorksData" :row="2" :title="'精品完结'" v-on:setcartoonclass="setcartoonclass(2)"></list-row>
-        <list-row :row-obj="peopleWorksData" :row="3" :title="'真人漫画'" v-on:setcartoonclass="setcartoonclass(3)"></list-row>
+        <list-row :row-obj="peopleWorksData" :row="3" :title="'悬疑漫画'" v-on:setcartoonclass="setcartoonclass(3)"></list-row>
         <list-row :row-obj="popularityWorksData" :row="1" :title="'人气作品'" v-on:setcartoonclass="setcartoonclass(4)"></list-row>
         <!-- 全部作品 -->
         <div class="scroll_bottom">
@@ -82,6 +82,7 @@ export default {
     }
   },
   mounted(){
+    console.log(this.$route.meta.keepAlive)
     this.axiosDataEvent();
     this.scrollview = this.$refs.scrollview;
     this.scrollview.addEventListener('scroll',this.Pulluploading,false);
@@ -90,8 +91,6 @@ export default {
     'list-row':listRow,
   },
   activated() {
-    console.log(this.scrollTop)
-    console.log(this.$route)
     if(this.scrollTop > 0){
         this.scrollview = this.$refs.scrollview;
         this.scrollview.scrollTo(0, this.scrollTop);
@@ -106,7 +105,11 @@ export default {
     },
     // banner跳转
     navigateTochapterDetail(item){
-        this.$router.push({path:'/chapter/chapterDetail',query: {sortNumber:1,cid:item.cid}});
+        if(item.jumpurl){
+            window.location.href = item.jumpurl;
+        }else{
+            this.$router.push({path:'/chapter/chapterDetail',query: {sortNumber:1,cid:item.cid}});
+        }
     },
     // 加载插件
     loadPluginEvent(){
@@ -136,7 +139,7 @@ export default {
             _self.peopleWorksData = data.zrmh;
             _self.popularityWorksData = data.rqzp;
             _self.$nextTick(function () {_self.loadPluginEvent()})
-            console.log(data)
+            // console.log(data)
         })
     },
     // 加载数据
@@ -149,7 +152,7 @@ export default {
             }else{
                 _self.popularityWorksData = _self.popularityWorksData.concat(response.data);
             }
-            console.log(response.data)
+            // console.log(response.data)
             _self.$store.state.loadShow =false;
         })
     },
@@ -165,6 +168,7 @@ export default {
     Pulluploading(){
         var _self = this;
         _self.scrollTop = _self.scrollview.scrollTop;
+        // console.log(_self.scrollTop)
         var scrollHeight = _self.scrollview.scrollHeight;
         var clientHeight = _self.scrollview.clientHeight;
         if(scrollHeight - clientHeight < _self.scrollTop+1){

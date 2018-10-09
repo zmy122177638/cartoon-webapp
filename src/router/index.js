@@ -34,14 +34,17 @@ Vue.use(Vuex)
 export default new Router({
   routes: [
     { path: '*', component: fail},
-    {
-      path: '/',
+    { 
+      path: '/', 
       component: index,
-      redirect:'/home',
+      redirect: '/home'
+    },
+    {
+      path: '/home',
+      component: index,
       children:[
         {
-          path:'/home',
-          name:'home',
+          path:'',
           component:home,
           meta: {keepAlive: true,title:'首页'}
         },

@@ -89,7 +89,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .moreCartoon_container{
-  overflow: auto;
+  overflow: scroll;
   -webkit-overflow-scrolling: touch;
   max-height:100vh;
 }

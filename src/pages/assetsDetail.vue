@@ -136,7 +136,7 @@ export default {
 <style scoped>
     .assetsDetail_container{
         height:100vh;
-        overflow: auto;
+        overflow: scroll;
         -webkit-overflow-scrolling: touch;
     }
     .assetsDetail_header{

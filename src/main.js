@@ -28,11 +28,17 @@ Vue.use(VueLazyload, {
   attempt: 1
 })
 
+// 缓存报错问题
+try {
+  JSON.parse(localStorage.getItem('userinfo'))
+} catch (error) {
+  localStorage.clear();
+}
 // Vuex
 const store = new Vuex.Store({
   state: {
     loadShow:false,  //load加载
-    userinfo:JSON.parse(localStorage.getItem('userinfo')) || {sex:0},  //用户信息
+    userinfo:JSON.parse(localStorage.getItem('userinfo')) || { sex:2 },  //用户信息
     uid:localStorage.getItem('uid') || uuid(8,16), 
     isLogin:localStorage.getItem('uid')?true:false, //是否登录
     channel:localStorage.getItem('channel') || 0,
@@ -46,7 +52,6 @@ const store = new Vuex.Store({
     getinfo(state,userinfo){
       state.userinfo = userinfo;
       localStorage.setItem('userinfo',JSON.stringify(userinfo));
-
     },
   	login(state,uid){
       state.uid = uid;
@@ -55,7 +60,8 @@ const store = new Vuex.Store({
     },
     Signout(state){
       state.isLogin = false;
-      localStorage.clear('uid');
+      localStorage.removeItem('uid');
+      localStorage.removeItem('userinfo');
     }
   }
 })

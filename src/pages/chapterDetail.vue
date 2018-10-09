@@ -67,7 +67,7 @@ export default {
         balance_B:false,
         throttle_B:false,
         chapterNum:this.$route.query.sortNumber,
-        scrollview:'',
+        // scrollview:'',
         likeCartoonData:[],
         chapterDetailData:[],
         menuChapter:{},
@@ -79,8 +79,7 @@ export default {
     }
   },
   mounted(){
-    console.log(this.$store.state.userinfo.sex)
-    this.scrollview = this.$refs.scrollview;
+    // this.scrollview = this.$refs.scrollview;
     this.chapterDetailDataEvent(0);
     this.getlikeCartoonData();
   },
@@ -89,7 +88,6 @@ export default {
   },
   methods:{
     menuShowEvent(item){
-        console.log(item)
         this.menuChapter = item;
         this.menu_B = !this.menu_B;
     },
@@ -101,7 +99,6 @@ export default {
         _self.$store.state.loadShow =true;
         _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-Cartoon-chapter_page',_self.$qs.stringify({cid:_self.$route.query.cid,uid:_self.$store.state.uid,sortNumber:_self.chapterNum,sex:_self.$store.state.userinfo.sex}))
         .then(function(response){
-        console.log(response)
         //获取章节数据
         _self.itemData = response.data;
         // 是否付费
@@ -131,12 +128,12 @@ export default {
                         // 是否自动订阅
                         if(response.data.autopay){
                             if(adequateMoney){
-                                _self.paypromt_B = !_self.paypromt_B;
+                                _self.paypromt_B = true;
                             }else{
                                 _self.buyChapterEvent();
                             }
                         }else{
-                            _self.paypromt_B = !_self.paypromt_B;
+                            _self.paypromt_B = true;
                         }
                     }
                 })
@@ -154,7 +151,7 @@ export default {
         _self.$axios.post('https://www.yixueqm.com/cartoon/index.php/Home-User-youLike',_self.$qs.stringify({uid:_self.$store.state.uid}))
         .then(function(response){
             _self.likeCartoonData = response.data;
-            console.log(response)
+            // console.log(response)
         })
     },
     // 推荐漫画跳转
@@ -175,15 +172,18 @@ export default {
         let prevchapterNum = menuChapter.sort_number;
         prevchapterNum--;
         this.chapterNum = prevchapterNum;
-        this.menu_B = ! this.menu_B;
+        this.menu_B = !this.menu_B;
+        window.removeEventListener('scroll',this.Pulluploading,false);
         this.chapterDetailDataEvent(0);
+        
     },
     // 下一话
     nextChapterEvent(menuChapter){
         let nextchapterNum = menuChapter.sort_number;
         nextchapterNum++;
         this.chapterNum = nextchapterNum;
-        this.menu_B = ! this.menu_B;
+        this.menu_B = !this.menu_B;
+        window.removeEventListener('scroll',this.Pulluploading,false);
         this.chapterDetailDataEvent(0);
     },
     // 加载方法  1 合并 0重载
@@ -199,8 +199,8 @@ export default {
             });
         }else{
             _self.chapterDetailData = [_self.itemData]
-            _self.scrollview.addEventListener('scroll',_self.Pulluploading,false);
-            _self.scrollview.scrollTop = 0;
+            window.addEventListener('scroll',_self.Pulluploading,false);
+            window.scrollTo(0,0);
             _self.$store.state.loadShow =false;
         }
     },
@@ -230,7 +230,6 @@ export default {
         }else{
             _self.$router.push('/mypage/login') 
         }
-        
     },
     // 收藏
     collectionEvent(item){
@@ -261,35 +260,38 @@ export default {
     // 上拉加载
     Pulluploading(){
       var _self = this;
-      var scrollTop = _self.scrollview.scrollTop;
-      var scrollHeight = _self.scrollview.scrollHeight;
-      var clientHeight = _self.scrollview.clientHeight;
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      var scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+      var clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+    //   console.log(scrollTop,scrollHeight,clientHeight)
       this.menu_B = false;
-      if(scrollHeight - clientHeight < scrollTop+1){
-          console.log(1321313)
-        var item = _self.chapterDetailData[_self.chapterDetailData.length-1];
-        _self.chapterNum = item.sort_number;
-        if(_self.chapterNum == _self.$route.query.chaptertotalNum){
-            layer.open({
-                content: '到底了~'
-                ,skin: 'msg'
-                ,time: 2 //2秒后自动关闭
-            });
-        }else{
+      if(scrollHeight - clientHeight < scrollTop + 5){
             if(!_self.throttle_B){
-                    _self.$store.state.loadShow =true;
-                setTimeout(function(){
-                    _self.chapterNum++;
-                    _self.chapterDetailDataEvent(1);
-                    _self.throttle_B = false;
-                },300)
+                _self.$store.state.loadShow =true;
                 _self.throttle_B = true;
+                var item = _self.chapterDetailData[_self.chapterDetailData.length-1];
+                _self.chapterNum = item.sort_number;
+                if(_self.chapterNum == _self.$route.query.chaptertotalNum){
+                    setTimeout(function(){
+                        _self.throttle_B = false;
+                        _self.$store.state.loadShow =false;
+                        layer.open({
+                            content: '到底了~'
+                            ,skin: 'msg'
+                            ,time: 2 //2秒后自动关闭
+                        });
+                    },800)
+                }else{
+                    setTimeout(function(){
+                        _self.chapterNum++;
+                        _self.chapterDetailDataEvent(1);
+                        _self.throttle_B = false;
+                    },800)
+                }
             }else{
-                return;
+                return false;
             }
         }
-          
-      }
     },
      // 自动扣币
     selectPayEvent(){
@@ -310,18 +312,18 @@ export default {
     navitoCatalog(){this.$router.push({path:'/cartoon/cartoonDetail',query:{cid:this.$route.query.cid,Catalog:1}})},
   },
   destroyed(){
-    this.scrollview.removeEventListener('scroll',this.Pulluploading,false);
+    window.removeEventListener('scroll',this.Pulluploading,false);
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-    .chapterDetail_container{
+    /* .chapterDetail_container{
         height: 100vh;
-        overflow: auto;
+        overflow:scroll;
         -webkit-overflow-scrolling: touch;
-    }
+    } */
     /* 头 */
     .on .chapterDetail_header{top:0;}
     .chapterDetail_header{
